@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 
 // material-ui
 import Button from '@mui/material/Button';
@@ -22,6 +22,8 @@ import { Formik } from 'formik';
 // project imports
 import IconButton from 'components/@extended/IconButton';
 import AnimateButton from 'components/@extended/AnimateButton';
+import { APP_DEFAULT_PATH } from 'config';
+import useAuth from 'hooks/useAuth';
 
 // assets
 import EyeOutlined from '@ant-design/icons/EyeOutlined';
@@ -31,6 +33,9 @@ import EyeInvisibleOutlined from '@ant-design/icons/EyeInvisibleOutlined';
 
 export default function AuthLogin({ isDemo = false }) {
   const [checked, setChecked] = React.useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [showPassword, setShowPassword] = React.useState(false);
   const handleClickShowPassword = () => {
@@ -41,12 +46,14 @@ export default function AuthLogin({ isDemo = false }) {
     event.preventDefault();
   };
 
+  const redirectTo = location.state?.from?.pathname || APP_DEFAULT_PATH;
+
   return (
     <>
       <Formik
         initialValues={{
-          email: 'info@codedthemes.com',
-          password: '123456',
+          email: '',
+          password: '',
           submit: null
         }}
         validationSchema={Yup.object().shape({
@@ -54,11 +61,20 @@ export default function AuthLogin({ isDemo = false }) {
           password: Yup.string()
             .required('Password is required')
             .test('no-leading-trailing-whitespace', 'Password cannot start or end with spaces', (value) => value === value.trim())
-            .max(10, 'Password must be less than 10 characters')
         })}
+        onSubmit={async (values, { setErrors, setSubmitting }) => {
+          try {
+            await login({ email: values.email, password: values.password });
+            navigate(redirectTo, { replace: true });
+          } catch (error) {
+            setErrors({ submit: error.message });
+          } finally {
+            setSubmitting(false);
+          }
+        }}
       >
-        {({ errors, handleBlur, handleChange, touched, values }) => (
-          <form noValidate>
+        {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
+          <form noValidate onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               <Grid size={12}>
                 <Stack sx={{ gap: 1 }}>
@@ -136,11 +152,16 @@ export default function AuthLogin({ isDemo = false }) {
               </Grid>
               <Grid size={12}>
                 <AnimateButton>
-                  <Button fullWidth size="large" variant="contained" color="primary">
+                  <Button disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="primary">
                     Login
                   </Button>
                 </AnimateButton>
               </Grid>
+              {errors.submit && (
+                <Grid size={12}>
+                  <FormHelperText error>{errors.submit}</FormHelperText>
+                </Grid>
+              )}
             </Grid>
           </form>
         )}

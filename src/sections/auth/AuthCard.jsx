@@ -11,7 +11,7 @@ import MainCard from 'components/MainCard';
 
 export default function AuthCard({ children, ...other }) {
   const theme = useTheme();
-
+ 
   return (
     <MainCard
       sx={{ maxWidth: { xs: 400, sm: 475 }, margin: { xs: 2.5, md: 3 }, '& > *': { flexGrow: 1, flexBasis: '50%' } }}

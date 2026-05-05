@@ -17,6 +17,7 @@ import '@fontsource/public-sans/700.css';
 
 // project imports
 import App from './App';
+import { AuthProvider } from 'contexts/AuthContext';
 import { ConfigProvider } from 'contexts/ConfigContext';
 import reportWebVitals from './reportWebVitals';
 
@@ -27,7 +28,9 @@ const root = createRoot(container);
 
 root.render(
   <ConfigProvider>
-    <App />
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   </ConfigProvider>
 );
 

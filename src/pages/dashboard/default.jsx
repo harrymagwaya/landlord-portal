@@ -25,6 +25,7 @@ import ReportAreaChart from 'sections/dashboard/default/ReportAreaChart';
 import UniqueVisitorCard from 'sections/dashboard/default/UniqueVisitorCard';
 import SaleReportCard from 'sections/dashboard/default/SaleReportCard';
 import OrdersTable from 'sections/dashboard/default/OrdersTable';
+import useUserProfile from 'hooks/useUserProfile';
 
 // assets
 import EllipsisOutlined from '@ant-design/icons/EllipsisOutlined';
@@ -59,6 +60,9 @@ const actionSX = {
 export default function DashboardDefault() {
   const [orderMenuAnchor, setOrderMenuAnchor] = useState(null);
   const [analyticsMenuAnchor, setAnalyticsMenuAnchor] = useState(null);
+  const { data: userProfile } = useUserProfile();
+
+  const fullName = [userProfile?.firstName, userProfile?.lastName].filter(Boolean).join(' ');
 
   const handleOrderMenuClick = (event) => {
     setOrderMenuAnchor(event.currentTarget);
@@ -78,7 +82,14 @@ export default function DashboardDefault() {
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
       {/* row 1 */}
       <Grid sx={{ mb: -2.25 }} size={12}>
-        <Typography variant="h5">Dashboard</Typography>
+        <Stack sx={{ gap: 0.5 }}>
+          <Typography variant="h5" color="text.secondary">
+            Dashboard
+          </Typography>
+          <Typography variant="h2" sx={{ fontWeight: 700 }}>
+            Welcome back{fullName ? `, ${fullName}` : ''}
+          </Typography>
+        </Stack>
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
         <AnalyticEcommerce title="Total Page Views" count="4,42,236" percentage={59.3} extra="35,000" />

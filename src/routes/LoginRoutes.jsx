@@ -2,6 +2,7 @@ import { lazy } from 'react';
 
 // project imports
 import Loadable from 'components/Loadable';
+import GuestGuard from './GuestGuard';
 
 // jwt auth
 const LoginPage = Loadable(lazy(() => import('pages/auth/Login')));
@@ -11,6 +12,7 @@ const RegisterPage = Loadable(lazy(() => import('pages/auth/Register')));
 
 const LoginRoutes = {
   path: '/',
+  element: <GuestGuard />,
   children: [
     {
       path: '/',

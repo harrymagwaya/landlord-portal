@@ -1,8 +1,7 @@
-// material-ui
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 
-// ==============================|| AUTH BLUR BACK SVG ||============================== //
+// ==============================|| AUTH BACKGROUND ||============================== //
 
 export default function AuthBackground() {
   const theme = useTheme();
@@ -11,28 +10,82 @@ export default function AuthBackground() {
     <Box
       sx={{
         position: 'absolute',
-        filter: 'blur(18px)',
-        zIndex: -1,
+        top: 0,
+        left: 0,
+        right: 0,
         bottom: 0,
-        transform: 'inherit'
+        zIndex: -1,
+        overflow: 'hidden',
+        background: `linear-gradient(180deg, ${theme.palette.background.paper} 0%, ${theme.palette.primary.lighter || theme.palette.primary.light} 100%)`,
       }}
     >
-      <svg width="100%" height="calc(100vh - 175px)" viewBox="0 0 405 809" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path
-          d="M-358.39 358.707L-293.914 294.23L-293.846 294.163H-172.545L-220.81 342.428L-233.272 354.889L-282.697 404.314L-276.575 410.453L0.316589 687.328L283.33 404.314L233.888 354.889L230.407 351.391L173.178 294.163H294.48L294.547 294.23L345.082 344.765L404.631 404.314L0.316589 808.629L-403.998 404.314L-358.39 358.707ZM0.316589 0L233.938 233.622H112.637L0.316589 121.301L-112.004 233.622H-233.305L0.316589 0Z"
-          fill={theme.vars.palette.primary.light}
-        />
-        <path
-          d="M-516.39 358.707L-451.914 294.23L-451.846 294.163H-330.545L-378.81 342.428L-391.272 354.889L-440.697 404.314L-434.575 410.453L-157.683 687.328L125.33 404.314L75.8879 354.889L72.4068 351.391L15.1785 294.163H136.48L136.547 294.23L187.082 344.765L246.631 404.314L-157.683 808.629L-561.998 404.314L-516.39 358.707ZM-157.683 0L75.9383 233.622H-45.3627L-157.683 121.301L-270.004 233.622H-391.305L-157.683 0Z"
-          fill={theme.vars.palette.success.light}
-          opacity="0.6"
-        />
-        <path
-          d="M-647.386 358.707L-582.91 294.23L-582.842 294.163H-461.541L-509.806 342.428L-522.268 354.889L-571.693 404.314L-565.571 410.453L-288.68 687.328L-5.66624 404.314L-55.1082 354.889L-58.5893 351.391L-115.818 294.163H5.48342L5.5507 294.23L56.0858 344.765L115.635 404.314L-288.68 808.629L-692.994 404.314L-647.386 358.707ZM-288.68 0L-55.0578 233.622H-176.359L-288.68 121.301L-401 233.622H-522.301L-288.68 0Z"
-          fill={theme.vars.palette.error.lighter}
-          opacity="1"
-        />
-      </svg>
+      {/* 1. REALISTIC BUILDING TEXTURE (Low Opacity) */}
+      <Box
+        component="img"
+        src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070"
+        alt="background"
+        sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          opacity: 0.04, // Very faint texture
+          filter: 'grayscale(100%)',
+        }}
+      />
+
+      {/* 2. DECORATIVE SUNLIGHT EFFECT */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: -100,
+          right: -50,
+          width: 400,
+          height: 400,
+          borderRadius: '50%',
+          background: `radial-gradient(circle, ${theme.palette.primary.light} 0%, transparent 70%)`,
+          opacity: 0.2,
+          filter: 'blur(60px)',
+        }}
+      />
+
+      {/* 3. ARCHITECTURAL SVG SILHOUETTE */}
+      <Box
+        sx={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          width: '100%',
+          lineHeight: 0, // Removes extra bottom spacing
+          opacity: 0.1,
+        }}
+      >
+        <svg
+          width="100%"
+          viewBox="0 0 1000 300"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="xMidYMax slice"
+        >
+          <path
+            d="M0 300H1000V250H950V100H850V250H820V150H720V250H680V50H550V250H500V120H400V250H350V80H220V250H180V180H80V300H0Z"
+            fill={theme.palette.primary.main}
+          />
+        </svg>
+      </Box>
+
+      {/* 4. BLUR OVERLAY (Bottom Fade) */}
+      <Box
+        sx={{
+          position: 'absolute',
+          bottom: 0,
+          width: '100%',
+          height: '25vh',
+          background: `linear-gradient(to top, ${theme.palette.background.default}, transparent)`,
+        }}
+      />
     </Box>
   );
 }

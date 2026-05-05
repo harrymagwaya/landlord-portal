@@ -23,6 +23,7 @@ import Avatar from 'components/@extended/Avatar';
 import MainCard from 'components/MainCard';
 import Transitions from 'components/@extended/Transitions';
 import IconButton from 'components/@extended/IconButton';
+import useAuth from 'hooks/useAuth';
 
 // assets
 import LogoutOutlined from '@ant-design/icons/LogoutOutlined';
@@ -50,6 +51,7 @@ function a11yProps(index) {
 
 export default function Profile() {
   const theme = useTheme();
+  const { logout, role, userId } = useAuth();
 
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
@@ -68,6 +70,11 @@ export default function Profile() {
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
+  };
+
+  const handleLogout = () => {
+    logout();
+    setOpen(false);
   };
 
   return (
@@ -117,16 +124,16 @@ export default function Profile() {
                         <Stack direction="row" sx={{ gap: 1.25, alignItems: 'center' }}>
                           <Avatar alt="profile user" src={avatar1} sx={{ width: 32, height: 32 }} />
                           <Stack>
-                            <Typography variant="h6">John Doe</Typography>
+                            <Typography variant="h6">{role || 'Portal User'}</Typography>
                             <Typography variant="body2" color="text.secondary">
-                              UI/UX Designer
+                              {userId || 'Authenticated'}
                             </Typography>
                           </Stack>
                         </Stack>
                       </Grid>
                       <Grid>
                         <Tooltip title="Logout">
-                          <IconButton size="large" sx={{ color: 'text.primary' }}>
+                          <IconButton size="large" sx={{ color: 'text.primary' }} onClick={handleLogout}>
                             <LogoutOutlined />
                           </IconButton>
                         </Tooltip>
@@ -171,7 +178,7 @@ export default function Profile() {
                     </Tabs>
                   </Box>
                   <TabPanel value={value} index={0} dir={theme.direction}>
-                    <ProfileTab />
+                    <ProfileTab handleLogout={handleLogout} />
                   </TabPanel>
                   <TabPanel value={value} index={1} dir={theme.direction}>
                     <SettingTab />
