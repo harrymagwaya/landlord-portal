@@ -8,12 +8,19 @@ import Typography from '@mui/material/Typography';
 
 // project imports
 import MainCard from 'components/MainCard';
+import PageHeader from 'components/PageHeader';
+
+// assets
+import FontSizeOutlined from '@ant-design/icons/FontSizeOutlined';
 
 // ==============================|| COMPONENTS - TYPOGRAPHY ||============================== //
 
 export default function ComponentTypography() {
   return (
     <Grid container spacing={3}>
+      <Grid size={12}>
+        <PageHeader title="Typography" description="Review text styles used by the interface." icon={FontSizeOutlined} />
+      </Grid>
       <Grid size={{ xs: 12, lg: 6 }}>
         <Stack sx={{ gap: 3 }}>
           <MainCard title="Basic">
@@ -174,7 +181,7 @@ export default function ComponentTypography() {
           </MainCard>
           <MainCard title="Link">
             <Stack sx={{ gap: 1.5 }}>
-              <Link href="#!">mantisdashboard.com</Link>
+              <Link href="#!">xpro</Link>
               <Breadcrumbs aria-label="breadcrumb">
                 <Typography variant="h6">Size: 12px</Typography>
                 <Typography variant="h6">Weight: Regular</Typography>

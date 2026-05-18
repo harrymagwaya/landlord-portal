@@ -2,14 +2,13 @@ import PropTypes from 'prop-types';
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { API_BASE_URL, APP_HEADER_KEY, APP_HEADER_VALUE, LOGIN_ENDPOINT } from 'config';
+import { ALLOWED_ROLES } from 'utils/roles';
 
 export const AUTH_STORAGE_KEY = 'lando-auth-session';
 export const AUTH_TOKEN_KEY = 'token';
 export const AUTH_USER_ID_KEY = 'userId';
 export const AUTH_ROLE_KEY = 'role';
 export const AUTH_EXPIRES_IN_KEY = 'expiresIn';
-
-const ALLOWED_ROLES = ['LANDLORD', 'SYSTEM_ADMIN'];
 
 const initialState = {
   token: null,
@@ -101,7 +100,7 @@ export function AuthProvider({ children }) {
     }
 
     if (!ALLOWED_ROLES.includes(nextSession.role)) {
-      throw new Error('Only landlords and system admins can access this portal.');
+      throw new Error('Your role is not allowed to access this portal.');
     }
 
     if (nextSession.expiresIn <= Date.now()) {

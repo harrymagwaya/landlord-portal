@@ -1,5 +1,7 @@
 import { createRoot } from 'react-dom/client';
 
+import 'antd/dist/reset.css';
+
 // style.scss
 import 'assets/style.css';
 

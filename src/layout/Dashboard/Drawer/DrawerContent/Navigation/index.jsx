@@ -4,11 +4,15 @@ import Box from '@mui/material/Box';
 
 // project import
 import NavGroup from './NavGroup';
-import menuItem from 'menu-items';
+import { getMenuItemsForRole } from 'menu-items';
+import useAuth from 'hooks/useAuth';
 
 // ==============================|| DRAWER CONTENT - NAVIGATION ||============================== //
 
 export default function Navigation() {
+  const { role } = useAuth();
+  const menuItem = getMenuItemsForRole(role);
+
   const navGroups = menuItem.items.map((item) => {
     switch (item.type) {
       case 'group':

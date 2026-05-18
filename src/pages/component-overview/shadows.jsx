@@ -7,6 +7,10 @@ import Typography from '@mui/material/Typography';
 
 // project imports
 import MainCard from 'components/MainCard';
+import PageHeader from 'components/PageHeader';
+
+// assets
+import BarcodeOutlined from '@ant-design/icons/BarcodeOutlined';
 
 // ===============================|| SHADOW BOX ||=============================== //
 
@@ -42,6 +46,9 @@ export default function ComponentShadow() {
 
   return (
     <Grid container spacing={3}>
+      <Grid size={12}>
+        <PageHeader title="Shadow" description="Review elevation styles used across the interface." icon={BarcodeOutlined} />
+      </Grid>
       <Grid size={12}>
         <MainCard title="Basic Shadow">
           <Grid container spacing={3}>

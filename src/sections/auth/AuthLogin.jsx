@@ -65,7 +65,7 @@ export default function AuthLogin({ isDemo = false }) {
         onSubmit={async (values, { setErrors, setSubmitting }) => {
           try {
             await login({ email: values.email, password: values.password });
-            navigate(redirectTo, { replace: true });
+            navigate('/auth/loading', { replace: true, state: { redirectTo } });
           } catch (error) {
             setErrors({ submit: error.message });
           } finally {

@@ -1,9 +1,13 @@
 import { useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 
 // material-ui
+import Alert from '@mui/material/Alert';
 import Avatar from '@mui/material/Avatar';
 import AvatarGroup from '@mui/material/AvatarGroup';
 import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
+import CircularProgress from '@mui/material/CircularProgress';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
@@ -19,12 +23,15 @@ import Box from '@mui/material/Box';
 
 // project imports
 import MainCard from 'components/MainCard';
+import PageHeader from 'components/PageHeader';
 import AnalyticEcommerce from 'components/cards/statistics/AnalyticEcommerce';
+import { useLoanApplications } from 'api/loans';
 import MonthlyBarChart from 'sections/dashboard/default/MonthlyBarChart';
 import ReportAreaChart from 'sections/dashboard/default/ReportAreaChart';
 import UniqueVisitorCard from 'sections/dashboard/default/UniqueVisitorCard';
 import SaleReportCard from 'sections/dashboard/default/SaleReportCard';
 import OrdersTable from 'sections/dashboard/default/OrdersTable';
+import useAuth from 'hooks/useAuth';
 import useUserProfile from 'hooks/useUserProfile';
 
 // assets
@@ -32,6 +39,7 @@ import EllipsisOutlined from '@ant-design/icons/EllipsisOutlined';
 import GiftOutlined from '@ant-design/icons/GiftOutlined';
 import MessageOutlined from '@ant-design/icons/MessageOutlined';
 import SettingOutlined from '@ant-design/icons/SettingOutlined';
+import DashboardOutlined from '@ant-design/icons/DashboardOutlined';
 
 import avatar1 from 'assets/images/users/avatar-1.png';
 import avatar2 from 'assets/images/users/avatar-2.png';
@@ -55,14 +63,128 @@ const actionSX = {
   transform: 'none'
 };
 
+function getLoanAmount(loan) {
+  return loan.amount || loan.principal || loan.requestedAmount || 0;
+}
+
+function getApplicantName(loan) {
+  const names = [loan?.tenant?.firstName, loan?.tenant?.lastName].filter(Boolean).join(' ');
+
+  return loan?.applicantName || loan?.tenantName || names || loan?.tenant?.email || 'Unknown applicant';
+}
+
+function formatCurrency(value) {
+  return new Intl.NumberFormat('en-KE', {
+    style: 'currency',
+    currency: 'KES',
+    maximumFractionDigits: 0
+  }).format(Number(value || 0));
+}
+
+function LoanAdminDashboard({ fullName }) {
+  const { data: pendingLoans = [], error, isLoading } = useLoanApplications('PENDING');
+  const requestedAmount = pendingLoans.reduce((total, loan) => total + Number(getLoanAmount(loan)), 0);
+  const highScoreCount = pendingLoans.filter((loan) => Number(loan.score || loan.creditScore || 0) >= 700).length;
+
+  return (
+    <Grid container rowSpacing={4.5} columnSpacing={2.75}>
+      <Grid size={12}>
+        <PageHeader
+          title="Loan Admin Dashboard"
+          description={`Welcome back${fullName ? `, ${fullName}` : ''}. Review pending loan work and scoring signals.`}
+          icon={DashboardOutlined}
+        />
+      </Grid>
+      <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
+        <AnalyticEcommerce title="Pending Applications" count={String(pendingLoans.length)} percentage={12.5} extra="Awaiting review" />
+      </Grid>
+      <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
+        <AnalyticEcommerce title="Requested Amount" count={formatCurrency(requestedAmount)} percentage={8.2} extra="Pending total" />
+      </Grid>
+      <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
+        <AnalyticEcommerce title="High Score Files" count={String(highScoreCount)} percentage={18.9} extra="Score 700+" />
+      </Grid>
+      <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
+        <MainCard>
+          <Stack sx={{ gap: 2 }}>
+            <Typography variant="h6" color="text.secondary">
+              Review Queue
+            </Typography>
+            <Button component={RouterLink} to="/loans/review" variant="contained" size="small">
+              Open Reviews
+            </Button>
+          </Stack>
+        </MainCard>
+      </Grid>
+
+      <Grid size={{ xs: 12, lg: 8 }}>
+        <Grid container sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
+          <Grid>
+            <Typography variant="h5">Applications Needing Review</Typography>
+          </Grid>
+          <Grid>
+            <Button component={RouterLink} to="/loans/review" size="small">
+              View All
+            </Button>
+          </Grid>
+        </Grid>
+        <MainCard sx={{ mt: 2 }} content={false}>
+          {error && (
+            <Box sx={{ p: 2 }}>
+              <Alert severity="error">{error.message}</Alert>
+            </Box>
+          )}
+          {isLoading ? (
+            <Stack sx={{ minHeight: 260, alignItems: 'center', justifyContent: 'center' }}>
+              <CircularProgress />
+            </Stack>
+          ) : (
+            <List sx={{ p: 0 }}>
+              {pendingLoans.slice(0, 6).map((loan) => (
+                <ListItem key={loan.id || loan.loanId || loan.applicationId} divider>
+                  <ListItemText
+                    primary={<Typography variant="subtitle1">{getApplicantName(loan)}</Typography>}
+                    secondary={`${formatCurrency(getLoanAmount(loan))} requested`}
+                  />
+                  <Chip size="small" color="warning" label={loan.status || 'PENDING'} />
+                </ListItem>
+              ))}
+              {!pendingLoans.length && (
+                <ListItem>
+                  <ListItemText primary="No pending loan applications." />
+                </ListItem>
+              )}
+            </List>
+          )}
+        </MainCard>
+      </Grid>
+      <Grid size={{ xs: 12, lg: 4 }}>
+        <MainCard>
+          <Stack sx={{ gap: 1.5 }}>
+            <Typography variant="h5">Loan Admin Focus</Typography>
+            <Typography color="text.secondary">
+              Review borrower score, requested amount, and pending decisions from the loan review workspace.
+            </Typography>
+          </Stack>
+        </MainCard>
+      </Grid>
+    </Grid>
+  );
+}
+
 // ==============================|| DASHBOARD - DEFAULT ||============================== //
 
 export default function DashboardDefault() {
   const [orderMenuAnchor, setOrderMenuAnchor] = useState(null);
   const [analyticsMenuAnchor, setAnalyticsMenuAnchor] = useState(null);
   const { data: userProfile } = useUserProfile();
+  const { role } = useAuth();
 
   const fullName = [userProfile?.firstName, userProfile?.lastName].filter(Boolean).join(' ');
+
+  if (role === 'LOAN_ADMIN') {
+    return <LoanAdminDashboard fullName={fullName} />;
+  }
 
   const handleOrderMenuClick = (event) => {
     setOrderMenuAnchor(event.currentTarget);
@@ -81,15 +203,8 @@ export default function DashboardDefault() {
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
       {/* row 1 */}
-      <Grid sx={{ mb: -2.25 }} size={12}>
-        <Stack sx={{ gap: 0.5 }}>
-          <Typography variant="h5" color="text.secondary">
-            Dashboard
-          </Typography>
-          <Typography variant="h2" sx={{ fontWeight: 700 }}>
-            Welcome back{fullName ? `, ${fullName}` : ''}
-          </Typography>
-        </Stack>
+      <Grid size={12}>
+        <PageHeader title="Dashboard" description={`Welcome back${fullName ? `, ${fullName}` : ''}. View your portal activity.`} icon={DashboardOutlined} />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
         <AnalyticEcommerce title="Total Page Views" count="4,42,236" percentage={59.3} extra="35,000" />

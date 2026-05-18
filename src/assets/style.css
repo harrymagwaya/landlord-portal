@@ -1,3 +1,60 @@
+/* ================= GLOBAL ================= */
+
 * {
   -webkit-tap-highlight-color: transparent;
+}
+
+/* ================= TABLE ROW ================= */
+
+.advanced-table-row {
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.advanced-table-row:hover td {
+  background: rgba(0, 0, 0, 0.02) !important;
+}
+
+/* ================= TABLE HEADER ================= */
+
+.ant-table-thead > tr > th {
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  color: rgba(0, 0, 0, 0.72);
+  background: #fafafa !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+}
+
+/* ================= TABLE BODY ================= */
+
+.ant-table-tbody > tr > td {
+  border-bottom: 1px solid #f5f5f5 !important;
+}
+
+/* ================= PAGINATION ================= */
+
+.ant-table-pagination {
+  padding-inline: 16px !important;
+  padding-bottom: 12px !important;
+}
+
+/* ================= EMPTY STATE ================= */
+
+.ant-empty {
+  margin-block: 48px !important;
+}
+
+/* ================= DRAWER ================= */
+
+.ant-drawer-header {
+  border-bottom: 1px solid #f3f3f3 !important;
+}
+
+.ant-drawer-body {
+  background: #fcfcfc;
+}
+
+.ant-table {
+  table-layout: fixed;
 }

@@ -13,6 +13,7 @@ const pages = {
   id: 'authentication',
   title: 'Authentication',
   type: 'group',
+  hideInMenu: true,
   children: [
     {
       id: 'login1',

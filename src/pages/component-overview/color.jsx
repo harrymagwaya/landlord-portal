@@ -10,6 +10,10 @@ import Box from '@mui/material/Box';
 
 // project imports
 import MainCard from 'components/MainCard';
+import PageHeader from 'components/PageHeader';
+
+// assets
+import BgColorsOutlined from '@ant-design/icons/BgColorsOutlined';
 
 function ColorBox({ bgcolor, title, data, dark, main }) {
   return (
@@ -55,6 +59,9 @@ export default function ComponentColor() {
   const currentPalette = theme.palette;
   return (
     <Grid container spacing={3}>
+      <Grid size={12}>
+        <PageHeader title="Color" description="Review the active theme palette and supporting colors." icon={BgColorsOutlined} />
+      </Grid>
       <Grid size={{ xs: 12, sm: 6, md: 4 }}>
         <MainCard title="Primary Color">
           <Stack>

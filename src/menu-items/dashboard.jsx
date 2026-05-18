@@ -12,6 +12,8 @@ const dashboard = {
   id: 'group-dashboard',
   title: 'Navigation',
   type: 'group',
+  icon: icons.DashboardOutlined,
+  roles: ['SYSTEM_ADMIN', 'LOAN_ADMIN', 'LANDLORD', 'TENANT'],
   children: [
     {
       id: 'dashboard',
@@ -19,6 +21,7 @@ const dashboard = {
       type: 'item',
       url: '/dashboard/default',
       icon: icons.DashboardOutlined,
+      roles: ['SYSTEM_ADMIN', 'LOAN_ADMIN', 'LANDLORD', 'TENANT'],
       breadcrumbs: false
     }
   ]

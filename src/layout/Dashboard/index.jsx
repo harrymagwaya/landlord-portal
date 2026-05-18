@@ -10,7 +10,6 @@ import Drawer from './Drawer';
 import Header from './Header';
 import Footer from './Footer';
 import Loader from 'components/Loader';
-import Breadcrumbs from 'components/@extended/Breadcrumbs';
 
 import { handlerDrawerOpen, useGetMenuMaster } from 'api/menu';
 
@@ -43,7 +42,6 @@ export default function DashboardLayout() {
             flexDirection: 'column'
           }}
         >
-          <Breadcrumbs />
           <Outlet />
           <Footer />
         </Box>

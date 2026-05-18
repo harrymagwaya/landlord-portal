@@ -4,9 +4,17 @@ import { lazy } from 'react';
 import Loadable from 'components/Loadable';
 import DashboardLayout from 'layout/Dashboard';
 import AuthGuard from './AuthGuard';
+import RoleGuard from './RoleGuard';
+import RoleRedirect from './RoleRedirect';
+import { USER_ROLES } from 'utils/roles';
 
 // render- Dashboard
 const DashboardDefault = Loadable(lazy(() => import('pages/dashboard/default')));
+const LoanReviewPage = Loadable(lazy(() => import('pages/loans/review')));
+const AuthLoadingPage = Loadable(lazy(() => import('pages/auth/AuthLoading')));
+const TenantsPage = Loadable(lazy(() => import('pages/users/tenants')));
+const LandlordsPage = Loadable(lazy(() => import('pages/users/landlords')));
+const ManageUsersPage = Loadable(lazy(() => import('pages/users/manage')));
 
 // render - color
 const Color = Loadable(lazy(() => import('pages/component-overview/color')));
@@ -23,12 +31,16 @@ const MainRoutes = {
   element: <AuthGuard />,
   children: [
     {
+      path: 'auth/loading',
+      element: <AuthLoadingPage />
+    },
+    {
       path: '/',
       element: <DashboardLayout />,
       children: [
         {
           path: '/',
-          element: <DashboardDefault />
+          element: <RoleRedirect />
         },
         {
           path: 'dashboard',
@@ -54,6 +66,34 @@ const MainRoutes = {
         {
           path: 'sample-page',
           element: <SamplePage />
+        },
+        {
+          path: 'loans',
+          element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LOAN_ADMIN]} />,
+          children: [
+            {
+              path: 'review',
+              element: <LoanReviewPage />
+            }
+          ]
+        },
+        {
+          path: 'users',
+          element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN]} />,
+          children: [
+            {
+              path: 'tenants',
+              element: <TenantsPage />
+            },
+            {
+              path: 'landlords',
+              element: <LandlordsPage />
+            },
+            {
+              path: 'manage',
+              element: <ManageUsersPage />
+            }
+          ]
         }
       ]
     }

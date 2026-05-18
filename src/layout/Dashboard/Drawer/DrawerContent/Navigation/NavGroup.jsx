@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { matchPath, useLocation } from 'react-router-dom';
 // material-ui
 import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
@@ -13,6 +14,25 @@ import { useGetMenuMaster } from 'api/menu';
 export default function NavGroup({ item }) {
   const { menuMaster } = useGetMenuMaster();
   const drawerOpen = menuMaster.isDashboardDrawerOpened;
+  const { pathname } = useLocation();
+  const activeItem = item.children?.find((menuItem) => menuItem.url && matchPath({ path: menuItem.url, end: false }, pathname));
+  const defaultItem = activeItem || item.children?.[0];
+
+  if (!drawerOpen && defaultItem) {
+    const collapsedItem = {
+      ...defaultItem,
+      id: `${item.id}-collapsed`,
+      title: item.title,
+      icon: item.icon || defaultItem.icon,
+      url: activeItem?.url || defaultItem.url
+    };
+
+    return (
+      <List sx={{ mb: 0.25, py: 0, zIndex: 0 }}>
+        <NavItem item={collapsedItem} level={1} />
+      </List>
+    );
+  }
 
   const navCollapse = item.children?.map((menuItem) => {
     switch (menuItem.type) {
