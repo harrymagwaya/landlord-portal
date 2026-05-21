@@ -51,17 +51,14 @@ export function useEligibilityActions() {
   const { token } = useAuth();
 
   // Uncomment if refresh endpoint is enabled later
-  // const refreshEligibility = (tenantId) =>
-  //   requestEligibility(
-  //     `${ELIGIBILITY_ENDPOINT}/${tenantId}/refresh`,
-  //     {
-  //       token,
-  //       method: 'POST'
-  //     }
-  //   );
+  const refreshEligibility = (tenantId) =>
+    requestEligibility(`${ELIGIBILITY_ENDPOINT}/${tenantId}/refresh`, {
+      token,
+      method: 'POST'
+    });
 
   return {
-    // refreshEligibility
+    refreshEligibility
   };
 }
 

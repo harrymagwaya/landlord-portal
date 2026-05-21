@@ -5,10 +5,13 @@ import users from './users';
 import pages from './page';
 import utilities from './utilities';
 import support from './support';
+import properties from './properties';
+import riskWeight from './riskWeight';
+import eligibility from './eligibility';
 // ==============================|| MENU ITEMS ||============================== //
 
 const menuItems = {
-  items: [dashboard, loans, users, pages, utilities, support]
+  items: [dashboard, riskWeight, loans, eligibility, users, properties, pages, utilities, support]
 };
 
 export function getMenuItemsForRole(role) {

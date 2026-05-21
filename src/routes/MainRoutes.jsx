@@ -16,6 +16,16 @@ const TenantsPage = Loadable(lazy(() => import('pages/users/tenants')));
 const LandlordsPage = Loadable(lazy(() => import('pages/users/landlords')));
 const ManageUsersPage = Loadable(lazy(() => import('pages/users/manage')));
 
+// ==============================|| RISK PAGES ||============================== //
+
+const RiskWeightPage = Loadable(lazy(() => import('pages/riskWeight/riskWeight')));
+const AiRiskWeightsPage = Loadable(lazy(() => import('pages/riskWeight/aiRisk')));
+const RiskAnalyticsDashboard = Loadable(lazy(() => import('pages/riskWeight/riskAnalytics')));
+
+// ==============================|| ELIGIBILITY PAGE ||============================== //
+
+const EligibilityPage = Loadable(lazy(() => import('pages/eligibility/EligibilityPage')));
+
 // render - color
 const Color = Loadable(lazy(() => import('pages/component-overview/color')));
 const Typography = Loadable(lazy(() => import('pages/component-overview/typography')));
@@ -42,6 +52,9 @@ const MainRoutes = {
           path: '/',
           element: <RoleRedirect />
         },
+
+        // ==============================|| DASHBOARD ||============================== //
+
         {
           path: 'dashboard',
           children: [
@@ -51,6 +64,9 @@ const MainRoutes = {
             }
           ]
         },
+
+        // ==============================|| COMPONENT PAGES ||============================== //
+
         {
           path: 'typography',
           element: <Typography />
@@ -67,6 +83,9 @@ const MainRoutes = {
           path: 'sample-page',
           element: <SamplePage />
         },
+
+        // ==============================|| LOANS ||============================== //
+
         {
           path: 'loans',
           element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LOAN_ADMIN]} />,
@@ -77,6 +96,9 @@ const MainRoutes = {
             }
           ]
         },
+
+        // ==============================|| USERS ||============================== //
+
         {
           path: 'users',
           element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN]} />,
@@ -92,6 +114,40 @@ const MainRoutes = {
             {
               path: 'manage',
               element: <ManageUsersPage />
+            }
+          ]
+        },
+
+        // ==============================|| RISK ENGINE ||============================== //
+
+        {
+          path: 'risk',
+          element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LOAN_ADMIN]} />,
+          children: [
+            {
+              path: 'weights',
+              element: <RiskWeightPage />
+            },
+            {
+              path: 'ai-weights',
+              element: <AiRiskWeightsPage />
+            },
+            {
+              path: 'analytics',
+              element: <RiskAnalyticsDashboard />
+            }
+          ]
+        },
+
+        // ==============================|| ELIGIBILITY ||============================== //
+
+        {
+          path: 'eligibility',
+          element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LOAN_ADMIN]} />,
+          children: [
+            {
+              path: '',
+              element: <EligibilityPage />
             }
           ]
         }
