@@ -22,6 +22,7 @@ export const RENTAL_PROFILES_ENDPOINT = '/api/v1/rental-profiles';
 export const RISK_WEIGHTS_ENDPOINT = '/api/v1/admin/weights';
 export const TENANT_CAPACITIES_ENDPOINT = '/api/v1/tenant-capacities';
 export const TENANTS_ENDPOINT = '/api/v1/tenants';
+export const TENANT_FEATURE_HISTORY_ENDPOINT = '/api/v1/tenant-feature-link';
 export const APP_HEADER_KEY = 'X-APP';
 export const APP_HEADER_VALUE = 'XPRO_LANDLORD_WEB_APP';
 export const ACTOR_ID_HEADER = import.meta.env.VITE_APP_ACTOR_ID_HEADER || 'X-ACTOR-ID';

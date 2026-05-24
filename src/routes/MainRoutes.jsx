@@ -14,7 +14,17 @@ const LoanReviewPage = Loadable(lazy(() => import('pages/loans/review')));
 const AuthLoadingPage = Loadable(lazy(() => import('pages/auth/AuthLoading')));
 const TenantsPage = Loadable(lazy(() => import('pages/users/tenants')));
 const LandlordsPage = Loadable(lazy(() => import('pages/users/landlords')));
+const LoanAdminsPage = Loadable(lazy(() => import('pages/users/loanAdmin')));
 const ManageUsersPage = Loadable(lazy(() => import('pages/users/manage')));
+const PropertyPage = Loadable(lazy(() => import('pages/property/property')));
+const PropertyUnitsPage = Loadable(lazy(() => import('pages/property/propertyUnit')));
+const RentalProfilesPage = Loadable(lazy(() => import('pages/property/rentalProfile')));
+const TenantCapacityPage = Loadable(lazy(() => import('pages/tenantCapacity/tenantCapacity')));
+const FinancialRecordsPage = Loadable(lazy(() => import('pages/financialRecord/financialRecord')));
+const BehavioralSnapshotsPage = Loadable(lazy(() => import('pages/behavioralFeature/snapshots')));
+const BehavioralAnalyticsPage = Loadable(lazy(() => import('pages/behavioralFeature/analytics')));
+const BehavioralTimelinePage = Loadable(lazy(() => import('pages/behavioralFeature/timeline')));
+const BehavioralProfilePage = Loadable(lazy(() => import('pages/behavioralFeature/profile')));
 
 // ==============================|| RISK PAGES ||============================== //
 
@@ -24,7 +34,7 @@ const RiskAnalyticsDashboard = Loadable(lazy(() => import('pages/riskWeight/risk
 
 // ==============================|| ELIGIBILITY PAGE ||============================== //
 
-const EligibilityPage = Loadable(lazy(() => import('pages/eligibility/EligibilityPage')));
+const EligibilityPage = Loadable(lazy(() => import('pages/eligibility/eligibilityPage')));
 
 // render - color
 const Color = Loadable(lazy(() => import('pages/component-overview/color')));
@@ -112,8 +122,39 @@ const MainRoutes = {
               element: <LandlordsPage />
             },
             {
+              path: 'loan-admins',
+              element: <LoanAdminsPage />
+            },
+            {
               path: 'manage',
               element: <ManageUsersPage />
+            }
+          ]
+        },
+
+        // ==============================|| PROPERTIES ||============================== //
+
+        {
+          path: 'properties',
+          element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LANDLORD]} />,
+          children: [
+            {
+              path: '',
+              element: <PropertyPage />
+            },
+            {
+              path: 'units',
+              element: <PropertyUnitsPage />
+            }
+          ]
+        },
+        {
+          path: 'rental-profiles',
+          element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LANDLORD]} />,
+          children: [
+            {
+              path: '',
+              element: <RentalProfilesPage />
             }
           ]
         },
@@ -148,6 +189,73 @@ const MainRoutes = {
             {
               path: '',
               element: <EligibilityPage />
+            }
+          ]
+        },
+
+        // ==============================|| FINANCIAL CAPACITY ||============================== //
+
+        {
+          path: 'financial-capacity',
+          element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LOAN_ADMIN]} />,
+          children: [
+            {
+              path: '',
+              element: <TenantCapacityPage />
+            },
+            {
+              path: 'eligibility',
+              element: <EligibilityPage />
+            },
+            {
+              path: 'risk-analysis',
+              element: <RiskAnalyticsDashboard />
+            }
+          ]
+        },
+
+        // ==============================|| FINANCIAL RECORDS ||============================== //
+
+        {
+          path: 'financial-records',
+          element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LOAN_ADMIN, USER_ROLES.LANDLORD]} />,
+          children: [
+            {
+              path: '',
+              element: <FinancialRecordsPage />
+            },
+            {
+              path: 'history',
+              element: <FinancialRecordsPage />
+            }
+          ]
+        },
+
+        // ==============================|| BEHAVIORAL FEATURES ||============================== //
+
+        {
+          path: 'behavioral',
+          element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LOAN_ADMIN]} />,
+          children: [
+            {
+              path: 'snapshots',
+              element: <BehavioralSnapshotsPage />
+            },
+            {
+              path: 'analytics',
+              element: <BehavioralAnalyticsPage />
+            },
+            {
+              path: 'timeline',
+              element: <BehavioralTimelinePage />
+            },
+            {
+              path: 'profile',
+              element: <BehavioralProfilePage />
+            },
+            {
+              path: 'profile/:id',
+              element: <BehavioralProfilePage />
             }
           ]
         }

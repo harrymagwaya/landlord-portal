@@ -23,7 +23,7 @@ import MainCard from 'components/MainCard';
 import PageHeader from 'components/PageHeader';
 
 // hooks
-import { useRentalProfiles, useRentalProfileActions } from 'hooks/useRentalProfiles';
+import { useRentalProfiles, useRentalProfileActions } from 'hooks/useRentalProfle';
 
 // icons
 import ApartmentOutlined from '@ant-design/icons/ApartmentOutlined';

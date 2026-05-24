@@ -139,7 +139,7 @@ export default function AdvancedTable({
           hideOnSinglePage: false,
           showSizeChanger: true,
           pageSizeOptions: ['10', '20', '50'],
-          position: ['bottomRight'],
+          placement: ['bottomRight'],
 
           showTotal: (total, range) => `${range[0]}-${range[1]} of ${total}`
         }}
@@ -157,10 +157,10 @@ export default function AdvancedTable({
 
       {/* ================= DETAILS DRAWER ================= */}
       <Drawer
-        title={selectedRecord ? getDetailTitle() : detailTitle}
+        title={selectedRecord ? getDetailTitle() : typeof detailTitle === 'function' ? 'Details' : detailTitle}
         open={Boolean(selectedRecord)}
         onClose={closeDrawer}
-        width={typeof window !== 'undefined' && window.innerWidth < 768 ? '100%' : 520}
+        size={typeof window !== 'undefined' && window.innerWidth < 768 ? 'large' : 'default'}
         styles={{
           body: {
             paddingTop: 8

@@ -20,8 +20,8 @@ import MainCard from 'components/MainCard';
 import PageHeader from 'components/PageHeader';
 
 // hooks
-import { useUnits, useUnitActions } from 'hooks/useUnits';
-import { useProperties } from 'hooks/useProperties';
+import { useUnitsByProperty, useUnitActions } from 'hooks/usePropertyUnits';
+import { useProperties } from 'hooks/useProperty';
 
 // icons
 import ApartmentOutlined from '@ant-design/icons/ApartmentOutlined';
@@ -41,11 +41,13 @@ function extractList(payload) {
 // ==============================|| PAGE ||============================== //
 
 export default function PropertyUnitsPage() {
-  const { data, error, isLoading, mutate } = useUnits();
-
   const { data: propertiesData } = useProperties({
     size: 100
   });
+
+  const defaultPropertyId = useMemo(() => extractList(propertiesData)?.[0]?.id || '', [propertiesData]);
+
+  const { data, error, isLoading, mutate } = useUnitsByProperty(defaultPropertyId);
 
   const { addUnit } = useUnitActions();
 

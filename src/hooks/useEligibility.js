@@ -36,7 +36,19 @@ async function requestEligibility(path, { token, actorId, ...options } = {}) {
 }
 
 async function fetchEligibilityByTenant([, token, tenantId]) {
-  return requestEligibility(`${ELIGIBILITY_ENDPOINT}/${tenantId}`, {
+  return requestEligibility(`${ELIGIBILITY_ENDPOINT}/tenant/${tenantId}/latest`, {
+    token
+  });
+}
+
+async function fetchEligibilityById([, token, id]) {
+  return requestEligibility(`${ELIGIBILITY_ENDPOINT}/${id}`, {
+    token
+  });
+}
+
+async function fetchEligibilityList([, token, page, size]) {
+  return requestEligibility(`${ELIGIBILITY_ENDPOINT}/paged?page=${page}&size=${size}`, {
     token
   });
 }
@@ -47,18 +59,29 @@ export function useEligibility(tenantId) {
   return useSWR(token && tenantId ? ['eligibility', token, tenantId] : null, fetchEligibilityByTenant);
 }
 
+export function useEligibilityById(id) {
+  const { token } = useAuth();
+
+  return useSWR(token && id ? ['eligibility-by-id', token, id] : null, fetchEligibilityById);
+}
+
+export function useEligibilityList(page = 0, size = 20) {
+  const { token } = useAuth();
+
+  return useSWR(token ? ['eligibility-list', token, page, size] : null, fetchEligibilityList);
+}
+
 export function useEligibilityActions() {
   const { token } = useAuth();
 
-  // Uncomment if refresh endpoint is enabled later
-  const refreshEligibility = (tenantId) =>
-    requestEligibility(`${ELIGIBILITY_ENDPOINT}/${tenantId}/refresh`, {
+  const assessEligibility = (tenantId) =>
+    requestEligibility(`${ELIGIBILITY_ENDPOINT}/tenant/${tenantId}/assess`, {
       token,
       method: 'POST'
     });
 
   return {
-    refreshEligibility
+    assessEligibility
   };
 }
 

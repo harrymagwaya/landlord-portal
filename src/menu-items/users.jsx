@@ -39,7 +39,7 @@ const users = {
       id: 'users-loan-Admin',
       title: 'Loan Admin',
       type: 'item',
-      url: '/users/loanAdmin',
+      url: '/users/loan-admins',
       icon: icons.UserSwitchOutlined,
       roles: ['SYSTEM_ADMIN']
     },

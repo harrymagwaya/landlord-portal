@@ -8,10 +8,14 @@ import support from './support';
 import properties from './properties';
 import riskWeight from './riskWeight';
 import eligibility from './eligibility';
+import financialRecords from './financialRecords';
+import tenantCapacity from './tenantCapacity';
+import behavioralFeatures from './behavioralFeatures';
+
 // ==============================|| MENU ITEMS ||============================== //
 
 const menuItems = {
-  items: [dashboard, riskWeight, loans, eligibility, users, properties, pages, utilities, support]
+  items: [dashboard, users, properties, tenantCapacity, financialRecords, behavioralFeatures, riskWeight, eligibility, loans, pages, utilities, support]
 };
 
 export function getMenuItemsForRole(role) {

@@ -31,7 +31,12 @@ export default defineConfig(({ mode }) => {
         // Add more aliases as needed
       }
     },
-    plugins: [react(), jsconfigPaths()],
+    plugins: [
+      react({
+        include: /\.[jt]sx?$/
+      }),
+      jsconfigPaths()
+    ],
     build: {
       chunkSizeWarningLimit: 1000,
       sourcemap: true,

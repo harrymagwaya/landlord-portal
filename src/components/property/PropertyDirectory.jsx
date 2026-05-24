@@ -19,7 +19,7 @@ import AdvancedTable from 'components/AdvancedTable';
 import MainCard from 'components/MainCard';
 import PageHeader from 'components/PageHeader';
 
-import { useProperties, usePropertyActions } from 'hooks/useProperties';
+import { useProperties, usePropertyActions } from 'hooks/useProperty';
 import { useLandlords } from 'hooks/useLandlords';
 
 // icons

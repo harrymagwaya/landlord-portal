@@ -20,7 +20,7 @@ import MainCard from 'components/MainCard';
 import PageHeader from 'components/PageHeader';
 
 // hooks
-import { useTenantFinancialHistory, useFinancialRecordActions } from 'hooks/useFinancialRecords';
+import { useTenantFinancialHistory, useFinancialRecordActions } from 'hooks/useFinancial';
 
 // icons
 import WalletOutlined from '@ant-design/icons/WalletOutlined';
