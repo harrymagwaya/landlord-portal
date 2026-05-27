@@ -158,6 +158,7 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import Autocomplete from '@mui/material/Autocomplete';
 
 // antd
 import { Tag, Timeline } from 'antd';
@@ -168,9 +169,8 @@ import PageHeader from 'components/PageHeader';
 import AdvancedTable from 'components/AdvancedTable';
 
 // hooks
-import { useBehavioralFeatures } from 'hooks/useBehavioralFeatures';
 import { useAllTenantFeatureHistory } from 'hooks/useFeatureLinks';
-import { useUser } from 'hooks/useUsers';
+import { useUser, useUsers } from 'hooks/useUsers';
 
 // icons
 import UserOutlined from '@ant-design/icons/UserOutlined';
@@ -235,27 +235,34 @@ function getRiskMeta(score) {
 
 export default function TenantBehaviorProfile() {
   const { id } = useParams();
-  const [tenantLookupId, setTenantLookupId] = useState(id || '');
-  const selectedTenantId = id || tenantLookupId;
+  const [profileTenantId, setProfileTenantId] = useState(id || '');
+  const selectedTenantId = id || profileTenantId;
 
-  const { data: behavioralData, isLoading, error } = useBehavioralFeatures();
+  const { data: usersData } = useUsers({ size: 200 });
   const { data: tenantUser } = useUser(selectedTenantId || null);
 
-  const { data: featureHistoryData } = useAllTenantFeatureHistory(0, 200);
-
-  const records = useMemo(() => extractList(behavioralData), [behavioralData]);
+  const { data: featureHistoryData, isLoading, error } = useAllTenantFeatureHistory(0, 200);
 
   const history = useMemo(() => extractList(featureHistoryData), [featureHistoryData]);
+  const users = useMemo(() => extractList(usersData), [usersData]);
+  const tenantOptions = useMemo(
+    () =>
+      users.map((u) => ({
+        id: u.id,
+        label: [u.firstName, u.lastName].filter(Boolean).join(' ') || u.username || u.email || u.id
+      })),
+    [users]
+  );
 
   const tenantSnapshots = useMemo(() => {
-    return records.filter((r) => r.tenantId === selectedTenantId);
-  }, [records, selectedTenantId]);
+    return history.filter((r) => r.tenantId === selectedTenantId);
+  }, [history, selectedTenantId]);
 
   const tenantHistory = useMemo(() => {
     return history.filter((r) => r.tenantId === selectedTenantId);
   }, [history, selectedTenantId]);
 
-  const latestSnapshot = tenantSnapshots[0];
+  const latestSnapshot = tenantSnapshots[0] || {};
 
   const overallScore = latestSnapshot ? calculateBehaviorScore(latestSnapshot) : 0;
 
@@ -377,9 +384,15 @@ export default function TenantBehaviorProfile() {
         <Grid size={12}>
           <MainCard>
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5}>
-              <TextField fullWidth label="Tenant ID" value={tenantLookupId} onChange={(e) => setTenantLookupId(e.target.value)} />
-              <Button variant="contained" disabled={!tenantLookupId}>
-                Find by ID
+              <Autocomplete
+                options={tenantOptions}
+                value={tenantOptions.find((o) => o.id === selectedTenantId) || null}
+                onChange={(_, option) => setProfileTenantId(option?.id || '')}
+                renderInput={(params) => <TextField {...params} label="Find Tenant" />}
+                sx={{ width: { xs: '100%', md: 360 } }}
+              />
+              <Button variant="contained" disabled={!selectedTenantId}>
+                Selected
               </Button>
             </Stack>
           </MainCard>
@@ -527,7 +540,7 @@ export default function TenantBehaviorProfile() {
             columns={columns}
             dataSource={tenantSnapshots}
             loading={isLoading}
-            rowKey={(r) => r.id}
+            rowKey={(r) => r.linkId || `${r.tenantId}-${r.snapshotId}`}
             emptyText="No tenant behavioral snapshots found."
           />
         </MainCard>
@@ -536,43 +549,45 @@ export default function TenantBehaviorProfile() {
       {/* TIMELINE */}
       <Grid size={{ xs: 12, lg: 4 }}>
         <MainCard title="Feature Timeline">
-          <Timeline
-            mode="left"
-            items={tenantHistory.map((item) => ({
-              color: item.active ? 'green' : 'gray',
+          <Box sx={{ maxHeight: 520, overflowY: 'auto', pr: 1 }}>
+            <Timeline
+              mode="left"
+              items={tenantHistory.map((item) => ({
+                color: item.active ? 'green' : 'gray',
 
-              children: (
-                <Paper
-                  sx={{
-                    p: 2,
-                    borderRadius: 3,
-                    border: '1px solid',
-                    borderColor: 'divider'
-                  }}
-                >
-                  <Stack spacing={1.5}>
-                    <Typography fontWeight={700}>Snapshot Linked</Typography>
+                children: (
+                  <Paper
+                    sx={{
+                      p: 2,
+                      borderRadius: 3,
+                      border: '1px solid',
+                      borderColor: 'divider'
+                    }}
+                  >
+                    <Stack spacing={1.5}>
+                      <Typography fontWeight={700}>Snapshot Linked</Typography>
 
-                    <Typography variant="caption" color="text.secondary">
-                      Snapshot #{String(item.snapshotId).slice(0, 8)}
-                    </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Snapshot #{String(item.snapshotId).slice(0, 8)}
+                      </Typography>
 
-                    <Divider />
+                      <Divider />
 
-                    <Stack direction="row" justifyContent="space-between">
-                      <Typography variant="caption">Status</Typography>
+                      <Stack direction="row" justifyContent="space-between">
+                        <Typography variant="caption">Status</Typography>
 
-                      <Tag color={item.active ? 'green' : 'default'}>{item.active ? 'ACTIVE' : 'INACTIVE'}</Tag>
+                        <Tag color={item.active ? 'green' : 'default'}>{item.active ? 'ACTIVE' : 'INACTIVE'}</Tag>
+                      </Stack>
+
+                      <Typography variant="caption" color="text.secondary">
+                        {item.linkedAt ? new Date(item.linkedAt).toLocaleString() : '-'}
+                      </Typography>
                     </Stack>
-
-                    <Typography variant="caption" color="text.secondary">
-                      {item.linkedAt ? new Date(item.linkedAt).toLocaleString() : '-'}
-                    </Typography>
-                  </Stack>
-                </Paper>
-              )
-            }))}
-          />
+                  </Paper>
+                )
+              }))}
+            />
+          </Box>
         </MainCard>
       </Grid>
 

@@ -35,6 +35,9 @@ const RiskAnalyticsDashboard = Loadable(lazy(() => import('pages/riskWeight/risk
 // ==============================|| ELIGIBILITY PAGE ||============================== //
 
 const EligibilityPage = Loadable(lazy(() => import('pages/eligibility/eligibilityPage')));
+const EligibilityOverviewPage = Loadable(lazy(() => import('pages/eligibility/overview')));
+const EligibilityAssessmentsPage = Loadable(lazy(() => import('pages/eligibility/assessments')));
+const EligibilityProfilePage = Loadable(lazy(() => import('pages/eligibility/profile')));
 
 // render - color
 const Color = Loadable(lazy(() => import('pages/component-overview/color')));
@@ -189,6 +192,22 @@ const MainRoutes = {
             {
               path: '',
               element: <EligibilityPage />
+            },
+            {
+              path: 'overview',
+              element: <EligibilityOverviewPage />
+            },
+            {
+              path: 'assessments',
+              element: <EligibilityAssessmentsPage />
+            },
+            {
+              path: 'profile',
+              element: <EligibilityProfilePage />
+            },
+            {
+              path: 'profile/:tenantId',
+              element: <EligibilityProfilePage />
             }
           ]
         },

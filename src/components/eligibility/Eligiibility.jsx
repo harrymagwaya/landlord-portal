@@ -9,6 +9,7 @@ import Alert from '@mui/material/Alert';
 import Chip from '@mui/material/Chip';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
 
 // antd
 import { Tag } from 'antd';
@@ -21,6 +22,7 @@ import AdvancedTable from 'components/AdvancedTable';
 // hooks
 import * as EligibilityHooks from 'hooks/useEligibility';
 import { useAllScores, useScoringActions } from 'hooks/useScoring';
+import { useUsers } from 'hooks/useUsers';
 
 // icons
 import CheckCircleOutlined from '@ant-design/icons/CheckCircleOutlined';
@@ -47,17 +49,35 @@ function getScoreValue(item) {
 // ==============================|| PAGE ||============================== //
 
 export default function Eligibility() {
-  const useEligibilityListHook = EligibilityHooks.useEligibilityList;
-  const { data, error, isLoading, mutate } = useEligibilityListHook ? useEligibilityListHook() : { data: [], error: null, isLoading: false };
-  const { assessEligibility } = EligibilityHooks.useEligibilityActions();
-  const { data: scoresData, mutate: mutateScores } = useAllScores();
-  const { generateScore } = useScoringActions();
   const [tenantId, setTenantId] = useState('');
   const [checking, setChecking] = useState(false);
   const [actionError, setActionError] = useState('');
+  const useEligibilityListHook = EligibilityHooks.useEligibilityList;
+  const { data, error, isLoading, mutate } = useEligibilityListHook ? useEligibilityListHook() : { data: [], error: null, isLoading: false };
+  const { data: singleTenantEligibility, isLoading: isTenantEligibilityLoading, mutate: mutateSingleTenant } = EligibilityHooks.useEligibility(
+    tenantId.trim() || null
+  );
+  const { assessEligibility } = EligibilityHooks.useEligibilityActions();
+  const { data: scoresData, mutate: mutateScores } = useAllScores();
+  const { data: usersData } = useUsers({ size: 200 });
+  const { generateScore } = useScoringActions();
 
   const list = useMemo(() => extractList(data), [data]);
+  const users = useMemo(() => extractList(usersData), [usersData]);
+  const tenantOptions = useMemo(
+    () =>
+      users.map((u) => ({
+        id: u.id,
+        label: [u.firstName, u.lastName].filter(Boolean).join(' ') || u.username || u.email || u.id
+      })),
+    [users]
+  );
   const scoreRows = useMemo(() => extractList(scoresData), [scoresData]);
+  const selectedTenantRows = useMemo(() => {
+    if (!tenantId.trim()) return list;
+    if (!singleTenantEligibility) return [];
+    return [singleTenantEligibility];
+  }, [tenantId, list, singleTenantEligibility]);
   const scoreByTenant = useMemo(() => {
     return scoreRows.reduce((acc, row) => {
       const tid = getTenantId(row);
@@ -78,7 +98,7 @@ export default function Eligibility() {
       setActionError('');
       await assessEligibility(tenantId.trim());
       await mutateScores();
-      await mutate();
+      await Promise.all([mutate(), mutateSingleTenant()]);
     } catch (e) {
       setActionError(e?.message || 'Failed to check eligibility.');
     } finally {
@@ -161,7 +181,7 @@ export default function Eligibility() {
                 setActionError('');
                 await generateScore(tid);
                 await assessEligibility(tid);
-                await Promise.all([mutateScores(), mutate()]);
+                await Promise.all([mutateScores(), mutate(), mutateSingleTenant()]);
               } catch (e) {
                 setActionError(e?.message || 'Failed to refresh tenant eligibility.');
               } finally {
@@ -190,12 +210,12 @@ export default function Eligibility() {
       <Grid size={12}>
         <MainCard>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} alignItems={{ md: 'center' }}>
-            <TextField
-              label="Tenant ID"
-              value={tenantId}
-              onChange={(e) => setTenantId(e.target.value)}
-              fullWidth
-              placeholder="0df2d562-827a-4e39-852f-0173faeae4b8"
+            <Autocomplete
+              options={tenantOptions}
+              value={tenantOptions.find((o) => o.id === tenantId) || null}
+              onChange={(_, option) => setTenantId(option?.id || '')}
+              renderInput={(params) => <TextField {...params} label="Find Tenant" />}
+              sx={{ width: { xs: '100%', md: 360 } }}
             />
             <Button variant="contained" disabled={!tenantId.trim() || checking} onClick={runEligibilityCheck}>
               {checking ? 'Checking...' : 'Check Eligibility'}
@@ -221,8 +241,8 @@ export default function Eligibility() {
         <MainCard content={false}>
           <AdvancedTable
             columns={columns}
-            dataSource={list}
-            loading={isLoading}
+            dataSource={selectedTenantRows}
+            loading={tenantId.trim() ? isTenantEligibilityLoading : isLoading}
             rowKey={(r) => r.tenantId}
             emptyText="No eligibility records found."
           />

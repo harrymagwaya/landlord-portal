@@ -13,6 +13,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
+import Autocomplete from '@mui/material/Autocomplete';
 
 import { Tag } from 'antd';
 
@@ -72,6 +73,14 @@ export default function BehavioralSnapshots() {
   const rows = useMemo(() => extractList(data), [data]);
   const users = useMemo(() => extractList(usersData), [usersData]);
   const usersById = useMemo(() => Object.fromEntries(users.map((u) => [u.id, u])), [users]);
+  const tenantOptions = useMemo(
+    () =>
+      users.map((u) => ({
+        id: u.id,
+        label: userName(u, u.id)
+      })),
+    [users]
+  );
 
   const [searchTenantId, setSearchTenantId] = useState('');
   const [riskFilter, setRiskFilter] = useState('ALL');
@@ -215,8 +224,14 @@ export default function BehavioralSnapshots() {
       <Grid size={12}>
         <MainCard>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5}>
-            <TextField label="Find Tenant ID" value={searchTenantId} onChange={(e) => setSearchTenantId(e.target.value)} fullWidth />
-            <TextField select label="Risk" value={riskFilter} onChange={(e) => setRiskFilter(e.target.value)} sx={{ minWidth: 180 }}>
+            <Autocomplete
+              options={tenantOptions}
+              value={tenantOptions.find((o) => o.id === searchTenantId) || null}
+              onChange={(_, option) => setSearchTenantId(option?.id || '')}
+              renderInput={(params) => <TextField {...params} label="Find Tenant" />}
+              sx={{ width: { xs: '100%', md: 360 } }}
+            />
+            <TextField select label="Risk" value={riskFilter} onChange={(e) => setRiskFilter(e.target.value)} sx={{ width: { xs: '100%', md: 180 } }}>
               <MenuItem value="ALL">All</MenuItem>
               <MenuItem value="LOW RISK">Low Risk</MenuItem>
               <MenuItem value="MODERATE">Moderate</MenuItem>

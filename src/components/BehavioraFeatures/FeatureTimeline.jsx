@@ -101,7 +101,7 @@
 //     </Grid>
 //   );
 // }
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 // material-ui
 import Alert from '@mui/material/Alert';
@@ -112,7 +112,9 @@ import Grid from '@mui/material/Grid';
 import LinearProgress from '@mui/material/LinearProgress';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import Autocomplete from '@mui/material/Autocomplete';
 
 // antd
 import { Timeline, Tag } from 'antd';
@@ -123,6 +125,7 @@ import PageHeader from 'components/PageHeader';
 
 // hooks
 import { useAllTenantFeatureHistory } from 'hooks/useFeatureLinks';
+import { useUsers } from 'hooks/useUsers';
 
 // icons
 import HistoryOutlined from '@ant-design/icons/HistoryOutlined';
@@ -135,16 +138,32 @@ function extractList(data) {
   return [];
 }
 
-function randomScore() {
-  return Math.floor(Math.random() * 100);
+function score(record) {
+  const metrics = [record.rentConsistency, record.mobileMoneyVolume, record.transactionDiversity, record.utilityPayments, record.savingsConsistency, record.loanRepaymentRate];
+  const valid = metrics.filter((m) => m != null);
+  if (!valid.length) return 0;
+  return Math.round((valid.reduce((a, b) => a + Number(b), 0) / valid.length) * 100);
 }
 
 // ==============================|| PAGE ||============================== //
 
 export default function BehavioralTimeline() {
   const { data, error } = useAllTenantFeatureHistory(0, 100);
+  const { data: usersData } = useUsers({ size: 200 });
 
   const rows = useMemo(() => extractList(data), [data]);
+  const users = useMemo(() => extractList(usersData), [usersData]);
+  const usersById = useMemo(() => Object.fromEntries(users.map((u) => [u.id, u])), [users]);
+  const tenantOptions = useMemo(
+    () =>
+      users.map((u) => ({
+        id: u.id,
+        label: [u.firstName, u.lastName].filter(Boolean).join(' ') || u.username || u.email || u.id
+      })),
+    [users]
+  );
+  const [tenantFilterId, setTenantFilterId] = useState('');
+  const filteredRows = useMemo(() => (tenantFilterId ? rows.filter((r) => r.tenantId === tenantFilterId) : rows), [rows, tenantFilterId]);
 
   return (
     <Grid container spacing={3}>
@@ -165,7 +184,7 @@ export default function BehavioralTimeline() {
           </Typography>
 
           <Typography variant="h3" fontWeight={800}>
-            {rows.length}
+            {filteredRows.length}
           </Typography>
         </Paper>
       </Grid>
@@ -177,7 +196,7 @@ export default function BehavioralTimeline() {
           </Typography>
 
           <Typography variant="h3" fontWeight={800}>
-            {rows.filter((r) => r.active).length}
+            {filteredRows.filter((r) => r.active).length}
           </Typography>
         </Paper>
       </Grid>
@@ -189,9 +208,21 @@ export default function BehavioralTimeline() {
           </Typography>
 
           <Typography variant="h3" fontWeight={800}>
-            {new Set(rows.map((r) => r.tenantId)).size}
+            {new Set(filteredRows.map((r) => r.tenantId)).size}
           </Typography>
         </Paper>
+      </Grid>
+
+      <Grid size={12}>
+        <MainCard>
+          <Autocomplete
+            options={tenantOptions}
+            value={tenantOptions.find((o) => o.id === tenantFilterId) || null}
+            onChange={(_, option) => setTenantFilterId(option?.id || '')}
+            renderInput={(params) => <TextField {...params} label="Find Tenant" />}
+            sx={{ width: { xs: '100%', md: 360 } }}
+          />
+        </MainCard>
       </Grid>
 
       {/* ERROR */}
@@ -206,8 +237,9 @@ export default function BehavioralTimeline() {
         <MainCard title="Behavioral Event Stream">
           <Timeline
             mode="left"
-            items={rows.map((record) => {
-              const behaviorScore = randomScore();
+            items={filteredRows.map((record) => {
+              const behaviorScore = score(record);
+              const tenant = usersById[record.tenantId];
 
               return {
                 color: record.active ? 'green' : 'gray',
@@ -231,14 +263,18 @@ export default function BehavioralTimeline() {
                               height: 52,
                               bgcolor: 'primary.main'
                             }}
-                          >
-                            {String(record.tenantId || 'T')
+                            >
+                            {(tenant?.firstName?.[0] ||
+                              tenant?.username?.[0] ||
+                              String(record.tenantId || 'T')
                               .slice(0, 1)
-                              .toUpperCase()}
+                              .toUpperCase())}
                           </Avatar>
 
                           <Box>
-                            <Typography fontWeight={800}>Tenant {String(record.tenantId).slice(0, 8)}</Typography>
+                            <Typography fontWeight={800}>
+                              {[tenant?.firstName, tenant?.lastName].filter(Boolean).join(' ') || tenant?.username || `Tenant ${String(record.tenantId).slice(0, 8)}`}
+                            </Typography>
 
                             <Typography variant="caption" color="text.secondary">
                               Snapshot #{String(record.snapshotId).slice(0, 8)}
