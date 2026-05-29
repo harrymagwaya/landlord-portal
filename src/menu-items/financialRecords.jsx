@@ -1,46 +1,67 @@
-// assets
-import WalletOutlined from '@ant-design/icons/WalletOutlined';
-import DollarCircleOutlined from '@ant-design/icons/DollarCircleOutlined';
-import HistoryOutlined from '@ant-design/icons/HistoryOutlined';
+// =========================================
+// FILE: menu-items/financial-management.js
+// =========================================
 
-// icons
+import WalletOutlined from '@ant-design/icons/WalletOutlined';
+import AuditOutlined from '@ant-design/icons/AuditOutlined';
+import HistoryOutlined from '@ant-design/icons/HistoryOutlined';
+import ApartmentOutlined from '@ant-design/icons/ApartmentOutlined';
+
 const icons = {
   WalletOutlined,
-  DollarCircleOutlined,
-  HistoryOutlined
+  AuditOutlined,
+  HistoryOutlined,
+  ApartmentOutlined
 };
 
-// ==============================|| MENU ITEMS - FINANCIAL RECORDS ||============================== //
-
-const financialRecords = {
-  id: 'group-financial-records',
-  title: 'Financial Records',
+const financialManagement = {
+  id: 'financial-management',
+  title: 'Financial Management',
   type: 'group',
-  icon: icons.WalletOutlined,
-
-  roles: ['SYSTEM_ADMIN', 'LOAN_ADMIN', 'LANDLORD'],
 
   children: [
+    // TENANT
     {
-      id: 'financial-records-directory',
-      title: 'Payment Records',
+      id: 'tenant-financial-records',
+      title: 'My Financial Records',
       type: 'item',
-      url: '/financial-records',
-      icon: icons.DollarCircleOutlined,
+      url: '/financial-records/my-records',
+      icon: icons.WalletOutlined,
 
-      roles: ['SYSTEM_ADMIN', 'LOAN_ADMIN', 'LANDLORD']
+      roles: ['TENANT','LANDLORD', 'SYSTEM_ADMIN']
+    },
+
+    // LANDLORD + ADMIN
+    {
+      id: 'payment-operations',
+      title: 'Payment Operations',
+      type: 'item',
+      url: '/landlord/payment-operations',
+      icon: icons.AuditOutlined,
+
+      roles: ['LANDLORD', 'SYSTEM_ADMIN', 'LOAN_ADMIN']
     },
 
     {
-      id: 'financial-records-history',
-      title: 'Payment History',
+      id: 'property-rent-roll',
+      title: 'Property Rent Roll',
       type: 'item',
-      url: '/financial-records/history',
+      url: '/landlord/rent-roll',
+      icon: icons.ApartmentOutlined,
+
+      roles: ['LANDLORD', 'SYSTEM_ADMIN']
+    },
+
+    {
+      id: 'payment-history',
+      title: 'Ledger History',
+      type: 'item',
+      url: '/landlord/ledger-history',
       icon: icons.HistoryOutlined,
 
-      roles: ['SYSTEM_ADMIN', 'LOAN_ADMIN', 'LANDLORD']
+      roles: ['LANDLORD', 'SYSTEM_ADMIN']
     }
   ]
 };
 
-export default financialRecords;
+export default financialManagement;

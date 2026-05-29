@@ -1,5 +1,5 @@
-import FinancialRecords from '../../components/financialRecord/FinancialRecord';
+import TenantFinancialRecords from 'components/financialRecord/TenantFinancial';
 
 export default function FinancialRecordsPage() {
-  return <FinancialRecords />;
+  return <TenantFinancialRecords />;
 }

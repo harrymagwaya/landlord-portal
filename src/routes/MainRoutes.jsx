@@ -20,7 +20,10 @@ const PropertyPage = Loadable(lazy(() => import('pages/property/property')));
 const PropertyUnitsPage = Loadable(lazy(() => import('pages/property/propertyUnit')));
 const RentalProfilesPage = Loadable(lazy(() => import('pages/property/rentalProfile')));
 const TenantCapacityPage = Loadable(lazy(() => import('pages/tenantCapacity/tenantCapacity')));
-const FinancialRecordsPage = Loadable(lazy(() => import('pages/financialRecord/financialRecord')));
+const TenantFinancialRecordsPage = Loadable(lazy(() => import('pages/financialRecord/financialRecord')));
+const PaymentOperationsPage = Loadable(lazy(() => import('pages/financialRecord/PaymentHistory')));
+const RentRollPage = Loadable(lazy(() => import('pages/financialRecord/rentRoll')));
+const LedgerHistoryPage = Loadable(lazy(() => import('pages/financialRecord/ledgerHistory')));
 const BehavioralSnapshotsPage = Loadable(lazy(() => import('pages/behavioralFeature/snapshots')));
 const BehavioralAnalyticsPage = Loadable(lazy(() => import('pages/behavioralFeature/analytics')));
 const BehavioralTimelinePage = Loadable(lazy(() => import('pages/behavioralFeature/timeline')));
@@ -46,6 +49,8 @@ const Shadow = Loadable(lazy(() => import('pages/component-overview/shadows')));
 
 // render - sample page
 const SamplePage = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
+
+const ProfilePage = Loadable(lazy(() => import('pages/profile/profile')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -106,6 +111,15 @@ const MainRoutes = {
             {
               path: 'review',
               element: <LoanReviewPage />
+            }
+          ]
+        },
+        {
+          path: 'profile',
+          children: [
+            {
+              path: '',
+              element: <ProfilePage />
             }
           ]
         },
@@ -233,19 +247,50 @@ const MainRoutes = {
           ]
         },
 
-        // ==============================|| FINANCIAL RECORDS ||============================== //
+        // ==============================|| TENANT FINANCIAL RECORDS ||============================== //
 
         {
           path: 'financial-records',
+          element: <RoleGuard allowedRoles={[USER_ROLES.TENANT, USER_ROLES.LANDLORD, USER_ROLES.SYSTEM_ADMIN]} />,
+          children: [
+            {
+              path: '',
+              element: <TenantFinancialRecordsPage />
+            },
+            {
+              path: 'my-records',
+              element: <TenantFinancialRecordsPage />
+            }
+          ]
+        },
+
+        // ==============================|| PAYMENT OPERATIONS ||============================== //
+
+        {
+          path: 'payment-operations',
           element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LOAN_ADMIN, USER_ROLES.LANDLORD]} />,
           children: [
             {
               path: '',
-              element: <FinancialRecordsPage />
+              element: <PaymentOperationsPage />
+            }
+          ]
+        },
+        {
+          path: 'landlord',
+          element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LOAN_ADMIN, USER_ROLES.LANDLORD]} />,
+          children: [
+            {
+              path: 'payment-operations',
+              element: <PaymentOperationsPage />
             },
             {
-              path: 'history',
-              element: <FinancialRecordsPage />
+              path: 'rent-roll',
+              element: <RentRollPage />
+            },
+            {
+              path: 'ledger-history',
+              element: <LedgerHistoryPage />
             }
           ]
         },

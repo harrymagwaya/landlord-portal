@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
 import Drawer from '@mui/material/Drawer';
 import Grid from '@mui/material/Grid';
 import MenuItem from '@mui/material/MenuItem';
@@ -22,9 +23,13 @@ import PageHeader from 'components/PageHeader';
 import { useProperties, usePropertyActions } from 'hooks/useProperty';
 import { useLandlords } from 'hooks/useLandlords';
 
-// icons
 import HomeOutlined from '@ant-design/icons/HomeOutlined';
 import PlusOutlined from '@ant-design/icons/PlusOutlined';
+import ApartmentOutlined from '@ant-design/icons/ApartmentOutlined';
+import DeleteOutlined from '@ant-design/icons/DeleteOutlined';
+import EyeOutlined from '@ant-design/icons/EyeOutlined';
+
+import { useNavigate } from 'react-router-dom';
 
 function getProperties(payload) {
   if (Array.isArray(payload)) return payload;
@@ -56,6 +61,8 @@ export default function PropertyDirectory() {
   const properties = useMemo(() => getProperties(data), [data]);
 
   const landlords = useMemo(() => getProperties(landlordsData), [landlordsData]);
+
+  const navigate = useNavigate();
 
   const handleChange = (field, value) => {
     setForm((prev) => ({
@@ -94,43 +101,68 @@ export default function PropertyDirectory() {
     }
   };
 
-  const columns = [
-    {
-      title: 'Property',
-      key: 'property',
-      render: (_, property) => (
-        <Box>
-          <Typography fontWeight={600}>{property.propertyName || '-'}</Typography>
+const columns = [
+  {
+    title: 'Property',
+    key: 'property',
+    render: (_, property) => (
+      <Stack spacing={0.5}>
+        <Typography fontWeight={700}>{property.name}</Typography>
 
-          <Typography variant="caption" color="text.secondary">
-            {property.description || 'No description'}
-          </Typography>
-        </Box>
-      )
-    },
+        <Typography variant="body2" color="text.secondary">
+          {property.location}
+        </Typography>
+      </Stack>
+    )
+  },
 
-    {
-      title: 'Type',
-      key: 'type',
-      width: 140,
-      render: (_, property) => <Tag color="blue">{property.propertyType || 'N/A'}</Tag>
-    },
+  {
+    title: 'Units',
+    key: 'units',
+    width: 120,
+    render: (_, property) => <Chip label={`${property.numberOfUnits || 0} Units`} color="primary" size="small" />
+  },
 
-    {
-      title: 'Units',
-      dataIndex: 'totalUnits',
-      key: 'units',
-      width: 120,
-      render: (value) => <Typography fontWeight={600}>{value || 0}</Typography>
-    },
+  {
+    title: 'City',
+    key: 'city',
+    width: 140,
+    render: (_, property) => property.address?.city || '-'
+  },
 
-    {
-      title: 'Status',
-      key: 'status',
-      width: 140,
-      render: (_, property) => <Tag color={property.status === 'ACTIVE' ? 'success' : 'default'}>{property.status || 'UNKNOWN'}</Tag>
-    }
-  ];
+  {
+    title: 'Status',
+    key: 'status',
+    width: 120,
+    render: () => <Tag color="green">ACTIVE</Tag>
+  },
+
+  {
+    title: 'Actions',
+    key: 'actions',
+    width: 260,
+    render: (_, property) => (
+      <Stack direction="row" spacing={1}>
+        <Button
+          size="small"
+          variant="outlined"
+          startIcon={<ApartmentOutlined />}
+          onClick={() => navigate(`/properties/units?propertyId=${property.id}`)}
+        >
+          Units
+        </Button>
+
+        <Button size="small" variant="outlined" startIcon={<EyeOutlined />}>
+          Snapshot
+        </Button>
+
+        <Button size="small" color="error" variant="outlined" startIcon={<DeleteOutlined />}>
+          Delete
+        </Button>
+      </Stack>
+    )
+  }
+];
 
   return (
     <>
@@ -180,32 +212,64 @@ export default function PropertyDirectory() {
                 {
                   key: 'id',
                   label: 'Property ID',
-                  children: property.id || '-'
+                  children: property.id
                 },
+
                 {
                   key: 'name',
                   label: 'Property Name',
-                  children: property.propertyName || '-'
+                  children: property.name
                 },
+
                 {
-                  key: 'type',
-                  label: 'Property Type',
-                  children: property.propertyType || '-'
+                  key: 'location',
+                  label: 'Location',
+                  children: property.location
                 },
+
                 {
                   key: 'units',
-                  label: 'Total Units',
-                  children: property.totalUnits || 0
+                  label: 'Number of Units',
+                  children: property.numberOfUnits
                 },
+
                 {
-                  key: 'status',
-                  label: 'Status',
-                  children: <Tag color={property.status === 'ACTIVE' ? 'green' : 'default'}>{property.status || 'UNKNOWN'}</Tag>
+                  key: 'city',
+                  label: 'City',
+                  children: property.address?.city
                 },
+
                 {
-                  key: 'description',
-                  label: 'Description',
-                  children: property.description || '-'
+                  key: 'country',
+                  label: 'Country',
+                  children: property.address?.country
+                },
+
+                {
+                  key: 'street',
+                  label: 'Street',
+                  children: property.address?.street
+                },
+
+                {
+                  key: 'actions',
+                  label: 'Actions',
+                  children: (
+                    <Stack direction="row" spacing={1}>
+                      <Button
+                        size="small"
+                        variant="contained"
+                        startIcon={<ApartmentOutlined />}
+                        onClick={() => navigate(`/properties/units?propertyId=${property.id}`)}
+                      >
+                        View Units
+                      </Button>
+
+                      <Button size="small" variant="outlined" startIcon={<EyeOutlined />}>
+                        View Landlord
+                      </Button>
+                    </Stack>
+                  )
                 }
               ]}
             />

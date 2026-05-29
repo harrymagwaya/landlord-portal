@@ -25,7 +25,7 @@ export const TENANTS_ENDPOINT = '/api/v1/tenants';
 export const TENANT_FEATURE_HISTORY_ENDPOINT = '/api/v1/tenant-feature-link';
 export const APP_HEADER_KEY = 'X-APP';
 export const APP_HEADER_VALUE = 'XPRO_LANDLORD_WEB_APP';
-export const ACTOR_ID_HEADER = import.meta.env.VITE_APP_ACTOR_ID_HEADER || 'X-ACTOR-ID';
+export const ACTOR_ID_HEADER = import.meta.env.VITE_APP_ACTOR_ID_HEADER || 'actor_id';
 
 const config = {
   fontFamily: `'Public Sans', sans-serif`
