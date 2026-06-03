@@ -65,13 +65,17 @@ function userName(user, tenantId) {
   return full || user.username || user.email || `Tenant ${String(tenantId || '-').slice(0, 8)}`;
 }
 
+function isTenantUser(user) {
+  return (user?.userRole || user?.role || user?.userType) === 'TENANT';
+}
+
 export default function BehavioralSnapshots() {
   const navigate = useNavigate();
   const { data, error, isLoading } = useAllTenantFeatureHistory(0, 200);
   const { data: usersData } = useUsers({ size: 200 });
 
   const rows = useMemo(() => extractList(data), [data]);
-  const users = useMemo(() => extractList(usersData), [usersData]);
+  const users = useMemo(() => extractList(usersData).filter(isTenantUser), [usersData]);
   const usersById = useMemo(() => Object.fromEntries(users.map((u) => [u.id, u])), [users]);
   const tenantOptions = useMemo(
     () =>

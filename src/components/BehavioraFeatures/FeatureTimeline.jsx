@@ -145,6 +145,10 @@ function score(record) {
   return Math.round((valid.reduce((a, b) => a + Number(b), 0) / valid.length) * 100);
 }
 
+function isTenantUser(user) {
+  return (user?.userRole || user?.role || user?.userType) === 'TENANT';
+}
+
 // ==============================|| PAGE ||============================== //
 
 export default function BehavioralTimeline() {
@@ -152,7 +156,7 @@ export default function BehavioralTimeline() {
   const { data: usersData } = useUsers({ size: 200 });
 
   const rows = useMemo(() => extractList(data), [data]);
-  const users = useMemo(() => extractList(usersData), [usersData]);
+  const users = useMemo(() => extractList(usersData).filter(isTenantUser), [usersData]);
   const usersById = useMemo(() => Object.fromEntries(users.map((u) => [u.id, u])), [users]);
   const tenantOptions = useMemo(
     () =>

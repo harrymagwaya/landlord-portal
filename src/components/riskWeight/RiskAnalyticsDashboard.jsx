@@ -13,6 +13,7 @@ import { BarChart } from '@mui/x-charts/BarChart';
 import MainCard from 'components/MainCard';
 import PageHeader from 'components/PageHeader';
 import { useAllScores } from 'hooks/useScoring';
+import { useUsers } from 'hooks/useUsers';
 
 // icons
 import FundOutlined from '@ant-design/icons/FundOutlined';
@@ -40,6 +41,10 @@ function getTenantId(record) {
   return record?.tenantId || record?.tenant?.id || record?.tenant?.tenantId || record?.userId || null;
 }
 
+function isTenantUser(user) {
+  return (user?.userRole || user?.role || user?.userType) === 'TENANT';
+}
+
 function getTimeKey(record) {
   const raw = record?.createdAt || record?.updatedAt || record?.scoredAt || record?.timestamp;
   const d = raw ? new Date(raw) : null;
@@ -53,10 +58,13 @@ const COLORS = ['#52c41a', '#faad14', '#ff4d4f'];
 
 export default function RiskAnalyticsDashboard() {
   const { data, error, isLoading } = useAllScores();
+  const { data: usersData } = useUsers({ size: 500 });
   const rows = useMemo(() => extractList(data), [data]);
+  const tenantIds = useMemo(() => new Set(extractList(usersData).filter(isTenantUser).map((user) => user.id).filter(Boolean)), [usersData]);
+  const tenantRows = useMemo(() => rows.filter((row) => tenantIds.size === 0 || tenantIds.has(getTenantId(row))), [rows, tenantIds]);
 
-  const scores = useMemo(() => rows.map(getScore).filter((v) => v !== null), [rows]);
-  const uniqueTenantCount = useMemo(() => new Set(rows.map(getTenantId).filter(Boolean)).size, [rows]);
+  const scores = useMemo(() => tenantRows.map(getScore).filter((v) => v !== null), [tenantRows]);
+  const uniqueTenantCount = useMemo(() => new Set(tenantRows.map(getTenantId).filter(Boolean)).size, [tenantRows]);
   const averageScore = useMemo(() => (scores.length ? Math.round(scores.reduce((s, v) => s + v, 0) / scores.length) : 0), [scores]);
   const highRiskCount = useMemo(() => scores.filter((s) => s < 550).length, [scores]);
   const highRiskPct = useMemo(() => (scores.length ? Math.round((highRiskCount / scores.length) * 100) : 0), [scores, highRiskCount]);
@@ -73,7 +81,7 @@ export default function RiskAnalyticsDashboard() {
   }, [scores]);
 
   const scoreTrend = useMemo(() => {
-    const bucket = rows.reduce((acc, row) => {
+    const bucket = tenantRows.reduce((acc, row) => {
       const month = getMonthLabel(row);
       const score = getScore(row);
       if (!month || score === null) return acc;
@@ -86,10 +94,10 @@ export default function RiskAnalyticsDashboard() {
     return order
       .filter((m) => bucket[m]?.length)
       .map((m) => ({ month: m, score: Math.round(bucket[m].reduce((s, v) => s + v, 0) / bucket[m].length) }));
-  }, [rows]);
+  }, [tenantRows]);
 
   const growthTrend = useMemo(() => {
-    const bucket = rows.reduce((acc, row) => {
+    const bucket = tenantRows.reduce((acc, row) => {
       const key = getTimeKey(row);
       if (!key) return acc;
       if (!acc[key]) acc[key] = { tenants: new Set(), records: 0 };
@@ -106,7 +114,7 @@ export default function RiskAnalyticsDashboard() {
         records: bucket[key].records,
         tenants: bucket[key].tenants.size
       }));
-  }, [rows]);
+  }, [tenantRows]);
 
   return (
     <Grid container rowSpacing={3}>

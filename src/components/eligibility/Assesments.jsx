@@ -21,6 +21,7 @@ import { Tag } from 'antd';
 import MainCard from 'components/MainCard';
 import PageHeader from 'components/PageHeader';
 import AdvancedTable from 'components/AdvancedTable';
+import ShortId from 'components/ShortId';
 
 // hooks
 import { useEligibilityList } from 'hooks/useEligibility';
@@ -58,7 +59,7 @@ export default function EligibilityAssessments() {
             <Typography fontWeight={700}>Tenant Profile</Typography>
 
             <Typography variant="caption" color="text.secondary">
-              {row.tenantId?.slice(0, 10)}...
+              <ShortId value={row.tenantId} />
             </Typography>
           </Box>
         </Stack>

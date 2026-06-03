@@ -19,6 +19,7 @@ import { Tag } from 'antd';
 import AdvancedTable from 'components/AdvancedTable';
 import MainCard from 'components/MainCard';
 import PageHeader from 'components/PageHeader';
+import ShortId from 'components/ShortId';
 
 // hooks
 import { useRiskWeights, useRiskWeightActions } from 'hooks/useRiskWeights';
@@ -51,8 +52,7 @@ export default function RiskWeight() {
   const [submitting, setSubmitting] = useState(false);
 
   const initialForm = {
-    key: '',
-    label: '',
+    featureKey: '',
     weightValue: 0,
     active: true
   };
@@ -79,8 +79,7 @@ export default function RiskWeight() {
   const openEdit = (record) => {
     setEditing(record);
     setForm({
-      key: record.key || '',
-      label: record.label || '',
+      featureKey: record.featureKey || record.key || '',
       weightValue: Number(record.weightValue || 0),
       active: record.active ?? true
     });
@@ -109,18 +108,21 @@ export default function RiskWeight() {
 
   const columns = [
     {
-      title: 'Key',
-      dataIndex: 'key',
-      key: 'key',
-      width: 200
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+      width: 130,
+      render: (value) => <ShortId value={value} />
     },
     {
-      title: 'Label',
-      dataIndex: 'label',
-      key: 'label'
+      title: 'Feature Key',
+      dataIndex: 'featureKey',
+      key: 'featureKey',
+      width: 240,
+      render: (value) => <Typography fontWeight={700}>{value || '-'}</Typography>
     },
     {
-      title: 'Weight',
+      title: 'Weight Value',
       dataIndex: 'weightValue',
       key: 'weightValue',
       width: 120,
@@ -134,7 +136,14 @@ export default function RiskWeight() {
       render: (active) => <Tag color={active ? 'green' : 'red'}>{active ? 'ACTIVE' : 'INACTIVE'}</Tag>
     },
     {
-      title: 'Action',
+      title: 'Created At',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      width: 190,
+      render: (value) => (value ? new Date(value).toLocaleString() : '-')
+    },
+    {
+      title: 'Edit',
       key: 'action',
       width: 120,
       render: (_, record) => (
@@ -144,7 +153,7 @@ export default function RiskWeight() {
       )
     },
     {
-      title: 'Toggle',
+      title: 'Active',
       key: 'toggle',
       width: 120,
       render: (_, record) => (
@@ -201,9 +210,7 @@ export default function RiskWeight() {
           <Stack spacing={3}>
             <Typography variant="h4">{editing ? 'Edit Weight' : 'Add Weight'}</Typography>
 
-            <TextField label="Key" value={form.key} onChange={(e) => handleChange('key', e.target.value)} fullWidth />
-
-            <TextField label="Label" value={form.label} onChange={(e) => handleChange('label', e.target.value)} fullWidth />
+            <TextField label="Feature Key" value={form.featureKey} onChange={(e) => handleChange('featureKey', e.target.value)} fullWidth />
 
             <TextField
               label="Weight Value"

@@ -159,6 +159,8 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Autocomplete from '@mui/material/Autocomplete';
+import PhoneOutlined from '@ant-design/icons/PhoneOutlined';
+import MailOutlined from '@ant-design/icons/MailOutlined';
 
 // antd
 import { Tag, Timeline } from 'antd';
@@ -231,6 +233,10 @@ function getRiskMeta(score) {
   };
 }
 
+function isTenantUser(user) {
+  return (user?.userRole || user?.role || user?.userType) === 'TENANT';
+}
+
 // ==============================|| PAGE ||============================== //
 
 export default function TenantBehaviorProfile() {
@@ -244,7 +250,7 @@ export default function TenantBehaviorProfile() {
   const { data: featureHistoryData, isLoading, error } = useAllTenantFeatureHistory(0, 200);
 
   const history = useMemo(() => extractList(featureHistoryData), [featureHistoryData]);
-  const users = useMemo(() => extractList(usersData), [usersData]);
+  const users = useMemo(() => extractList(usersData).filter(isTenantUser), [usersData]);
   const tenantOptions = useMemo(
     () =>
       users.map((u) => ({
@@ -406,80 +412,157 @@ export default function TenantBehaviorProfile() {
         </Grid>
       )}
 
-      {/* HERO PROFILE */}
-      <Grid size={12}>
+      {/* TENANT CARD */}
+      <Grid size={{ xs: 12, lg: 8 }}>
         <Paper
           sx={{
-            p: 4,
-            borderRadius: 5,
-            background: 'linear-gradient(135deg, rgba(25,118,210,0.12) 0%, rgba(25,118,210,0.03) 100%)'
+            p: 3,
+            borderRadius: 4
           }}
         >
-          <Stack
-            direction={{
-              xs: 'column',
-              md: 'row'
-            }}
-            spacing={4}
-            alignItems={{
-              md: 'center'
-            }}
-            justifyContent="space-between"
-          >
-            <Stack direction="row" spacing={3} alignItems="center">
-              <Avatar
-                src={tenantUser?.avatarUrl}
-                sx={{
-                  width: 90,
-                  height: 90,
-                  fontSize: 32,
-                  bgcolor: 'primary.main'
-                }}
-              >
-                {String((tenantUser?.firstName || tenantUser?.username || selectedTenantId || 'T').slice(0, 1)).toUpperCase()}
-              </Avatar>
+          <Stack spacing={3}>
+            <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" spacing={3}>
+              <Stack direction="row" spacing={2} alignItems="center">
+                <Avatar
+                  src={tenantUser?.avatarUrl || tenantUser?.avatar}
+                  sx={{
+                    width: 68,
+                    height: 68,
+                    bgcolor: 'primary.main',
+                    fontWeight: 700,
+                    fontSize: 24
+                  }}
+                >
+                  {String((tenantUser?.firstName || tenantUser?.username || selectedTenantId || 'T').slice(0, 1)).toUpperCase()}
+                </Avatar>
 
-              <Box>
-                <Typography variant="h3" fontWeight={800}>
-                  {[tenantUser?.firstName, tenantUser?.lastName].filter(Boolean).join(' ') ||
-                    tenantUser?.username ||
-                    `Tenant ${String(selectedTenantId || '').slice(0, 8)}`}
-                </Typography>
+                <Box>
+                  <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+                    <Typography variant="h4" fontWeight={800}>
+                      {[tenantUser?.firstName, tenantUser?.lastName].filter(Boolean).join(' ') ||
+                        tenantUser?.username ||
+                        `Tenant ${String(selectedTenantId || '').slice(0, 8)}`}
+                    </Typography>
 
-                <Typography variant="body1" color="text.secondary" mt={1}>
-                  AI-powered behavioral intelligence profile
-                </Typography>
+                    <Chip
+                      size="small"
+                      label={risk.label}
+                      color={overallScore >= 75 ? 'success' : overallScore >= 45 ? 'warning' : 'error'}
+                    />
+                  </Stack>
 
-                <Stack direction="row" spacing={1} mt={2} flexWrap="wrap">
-                  <Tag color={risk.tag}>{risk.label}</Tag>
+                  <Typography variant="body2" color="text.secondary">
+                    {tenantUser?.email || 'No email'}
+                  </Typography>
 
-                  <Chip label={`${tenantSnapshots.length} Snapshots`} size="small" />
+                  <Typography variant="body2" color="text.secondary">
+                    {tenantUser?.phoneNumber || 'No phone'}
+                  </Typography>
+                </Box>
+              </Stack>
 
-                  <Chip label={`${tenantHistory.length} Timeline Events`} size="small" />
-                </Stack>
-              </Box>
+              <Stack direction="row" spacing={1}>
+                <Button size="small" variant="outlined" startIcon={<PhoneOutlined />} href={`tel:${tenantUser?.phoneNumber || ''}`}>
+                  Call
+                </Button>
+
+                <Button size="small" variant="outlined" startIcon={<MailOutlined />} href={`mailto:${tenantUser?.email || ''}`}>
+                  Email
+                </Button>
+              </Stack>
             </Stack>
 
-            <Box sx={{ minWidth: 280 }}>
-              <Typography variant="body2" color="text.secondary">
-                Behavioral Health
-              </Typography>
+            <Divider />
 
-              <Typography variant="h2" fontWeight={900} mt={1}>
-                {overallScore}%
-              </Typography>
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 6, md: 3 }}>
+                <Typography variant="caption" color="text.secondary">
+                  Behavioral Health
+                </Typography>
+                <Typography variant="h5" fontWeight={800} mt={1}>
+                  {overallScore}%
+                </Typography>
+              </Grid>
+
+              <Grid size={{ xs: 6, md: 3 }}>
+                <Typography variant="caption" color="text.secondary">
+                  Snapshots
+                </Typography>
+                <Typography variant="h5" fontWeight={800} mt={1}>
+                  {tenantSnapshots.length}
+                </Typography>
+              </Grid>
+
+              <Grid size={{ xs: 6, md: 3 }}>
+                <Typography variant="caption" color="text.secondary">
+                  Timeline Events
+                </Typography>
+                <Typography variant="h5" fontWeight={800} mt={1}>
+                  {tenantHistory.length}
+                </Typography>
+              </Grid>
+
+              <Grid size={{ xs: 6, md: 3 }}>
+                <Typography variant="caption" color="text.secondary">
+                  Active Link
+                </Typography>
+                <Typography variant="h5" fontWeight={800} mt={1} color={latestSnapshot?.active ? 'success.main' : 'text.primary'}>
+                  {latestSnapshot?.active ? 'YES' : 'NO'}
+                </Typography>
+              </Grid>
+            </Grid>
+
+            <Box>
+              <Stack direction="row" justifyContent="space-between">
+                <Typography variant="body2" color="text.secondary">
+                  Behavioral Health
+                </Typography>
+
+                <Typography fontWeight={700}>{overallScore}%</Typography>
+              </Stack>
 
               <LinearProgress
                 variant="determinate"
                 value={overallScore}
                 color={risk.color}
                 sx={{
-                  mt: 2,
-                  height: 12,
+                  mt: 1.5,
+                  height: 10,
                   borderRadius: 999
                 }}
               />
             </Box>
+          </Stack>
+        </Paper>
+      </Grid>
+
+      <Grid size={{ xs: 12, lg: 4 }}>
+        <Paper
+          sx={{
+            p: 3,
+            borderRadius: 4,
+            height: '100%'
+          }}
+        >
+          <Stack spacing={2.5}>
+            <Box textAlign="center">
+              <Typography variant="body2" color="text.secondary">
+                Behavioral Risk
+              </Typography>
+
+              <Typography variant="h2" fontWeight={900} mt={1} color={`${risk.color}.main`}>
+                {overallScore}%
+              </Typography>
+
+              <Tag color={risk.tag}>{risk.label}</Tag>
+            </Box>
+
+            <Divider />
+
+            <Typography variant="body2" color="text.secondary">
+              Based only on tenant feature-link signals: rent consistency, mobile money activity, transaction diversity, savings and repayment
+              behavior.
+            </Typography>
           </Stack>
         </Paper>
       </Grid>

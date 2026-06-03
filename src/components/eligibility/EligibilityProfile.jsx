@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import PhoneOutlined from '@ant-design/icons/PhoneOutlined';
 import MailOutlined from '@ant-design/icons/MailOutlined';
 
@@ -102,6 +103,36 @@ function calculateBehaviorHealth(feature) {
   return Math.round((valid.reduce((a, b) => a + b, 0) / valid.length) * 100);
 }
 
+function normalizeScorePercent(score) {
+  const value = Number(score || 0);
+
+  if (!value) return 0;
+
+  return value <= 100 ? Math.min(100, Math.round(value)) : Math.min(100, Math.round((value / 850) * 100));
+}
+
+function calculateAIConfidence({ scoreData, behaviorHealth, eligibilityData }) {
+  const scoreConfidence = normalizeScorePercent(scoreData?.creditScore);
+  const bandConfidence =
+    eligibilityData.riskBand === 'PLATINUM'
+      ? 100
+      : eligibilityData.riskBand === 'GOLD'
+        ? 82
+        : eligibilityData.riskBand === 'SILVER'
+          ? 64
+          : eligibilityData.riskBand === 'BRONZE'
+            ? 45
+            : 20;
+  const eligibilityConfidence = eligibilityData.calculationAllowed ? bandConfidence : Math.min(bandConfidence, 35);
+  const usableScore = scoreConfidence || eligibilityConfidence;
+
+  return Math.round(usableScore * 0.55 + behaviorHealth * 0.3 + eligibilityConfidence * 0.15);
+}
+
+function isTenantUser(user) {
+  return (user?.userRole || user?.role || user?.userType) === 'TENANT';
+}
+
 function getRiskColor(band) {
   switch (band) {
     case 'PLATINUM':
@@ -123,9 +154,10 @@ function getRiskColor(band) {
 
 // ==============================|| PAGE ||============================== //
 
-export default function EligibilityTenantProfile() {
+export default function EligibilityTenantProfile({ basePath = '/eligibility/profile', title = 'Tenant Eligibility Intelligence' }) {
   const navigate = useNavigate();
-  const { tenantId: routeTenantId } = useParams();
+  const { tenantId: eligibilityRouteTenantId, id: behavioralRouteTenantId } = useParams();
+  const routeTenantId = eligibilityRouteTenantId || behavioralRouteTenantId;
   const [selectedTenantId, setSelectedTenantId] = useState(routeTenantId || '');
   const [actionError, setActionError] = useState('');
   const [runningAssessment, setRunningAssessment] = useState(false);
@@ -136,7 +168,7 @@ export default function EligibilityTenantProfile() {
 
   const { data: usersData } = useUsers({ size: 200 });
 
-  const users = useMemo(() => extractList(usersData), [usersData]);
+  const users = useMemo(() => extractList(usersData).filter(isTenantUser), [usersData]);
 
   const tenantOptions = useMemo(
     () =>
@@ -191,7 +223,7 @@ export default function EligibilityTenantProfile() {
             onChange={(_, option) => {
               const id = option?.id || '';
               setSelectedTenantId(id);
-              if (id) navigate(`/eligibility/profile/${id}`);
+              if (id) navigate(`${basePath}/${id}`);
             }}
             renderInput={(params) => <TextField {...params} label="Find Tenant" />}
             sx={{ width: { xs: '100%', md: 360 } }}
@@ -205,7 +237,7 @@ export default function EligibilityTenantProfile() {
     return (
       <Grid container spacing={3}>
         <Grid size={12}>
-          <PageHeader title="Tenant Eligibility Intelligence" description="Pick a tenant to view profile" icon={UserOutlined} />
+          <PageHeader title={title} description="Pick a tenant to view profile" icon={UserOutlined} />
         </Grid>
         {tenantSelectionCard}
         <Grid size={12}>
@@ -228,7 +260,7 @@ export default function EligibilityTenantProfile() {
       <Grid container spacing={3}>
         <Grid size={12}>
           <PageHeader
-            title="Tenant Eligibility Intelligence"
+            title={title}
             description="No eligibility record found for this tenant"
             icon={UserOutlined}
           />
@@ -268,14 +300,7 @@ export default function EligibilityTenantProfile() {
 
   const behaviorHealth = calculateBehaviorHealth(latestBehavior);
 
-  const aiConfidence =
-    eligibilityData.currentMaxLimit >= 500
-      ? 92
-      : eligibilityData.currentMaxLimit >= 300
-        ? 74
-        : eligibilityData.currentMaxLimit >= 100
-          ? 48
-          : 22;
+  const aiConfidence = calculateAIConfidence({ scoreData, behaviorHealth, eligibilityData });
 
   const riskColor = aiConfidence >= 70 ? 'success' : aiConfidence >= 40 ? 'warning' : 'error';
 
@@ -310,7 +335,7 @@ return (
     <Grid size={12}>
       <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" spacing={2}>
         <PageHeader
-          title="Tenant Eligibility Intelligence"
+          title={title}
           description="AI-powered borrowing analytics and behavioral risk assessment"
           icon={UserOutlined}
         />
@@ -399,7 +424,7 @@ return (
                 </Typography>
 
                 <Typography variant="h5" fontWeight={800} mt={1}>
-                  {currency(eligibilityData.currentMaxLimit)}
+                  {currency(eligibilityData.currentMinLimit)} - {currency(eligibilityData.currentMaxLimit)}
                 </Typography>
               </Box>
             </Grid>
@@ -509,7 +534,7 @@ return (
             </Typography>
 
             <Typography variant="body2" color="text.secondary" mt={1}>
-              Predictive repayment confidence score
+              Combined from latest credit score, behavioral health and eligibility risk band
             </Typography>
           </Box>
 
@@ -632,3 +657,8 @@ return (
   </Grid>
 );
 }
+
+EligibilityTenantProfile.propTypes = {
+  basePath: PropTypes.string,
+  title: PropTypes.string
+};

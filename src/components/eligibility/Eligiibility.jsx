@@ -18,6 +18,7 @@ import { Tag } from 'antd';
 import MainCard from 'components/MainCard';
 import PageHeader from 'components/PageHeader';
 import AdvancedTable from 'components/AdvancedTable';
+import ShortId from 'components/ShortId';
 
 // hooks
 import * as EligibilityHooks from 'hooks/useEligibility';
@@ -46,6 +47,10 @@ function getScoreValue(item) {
   return key ? Number(item[key]) : null;
 }
 
+function isTenantUser(user) {
+  return (user?.userRole || user?.role || user?.userType) === 'TENANT';
+}
+
 // ==============================|| PAGE ||============================== //
 
 export default function Eligibility() {
@@ -63,7 +68,7 @@ export default function Eligibility() {
   const { generateScore } = useScoringActions();
 
   const list = useMemo(() => extractList(data), [data]);
-  const users = useMemo(() => extractList(usersData), [usersData]);
+  const users = useMemo(() => extractList(usersData).filter(isTenantUser), [usersData]);
   const tenantOptions = useMemo(
     () =>
       users.map((u) => ({
@@ -112,7 +117,7 @@ export default function Eligibility() {
       dataIndex: 'tenantId',
       key: 'tenantId',
       width: 220,
-      render: (id) => <Box sx={{ fontFamily: 'monospace', fontSize: 12 }}>{id?.slice(0, 8)}...</Box>
+      render: (id) => <ShortId value={id} />
     },
     {
       title: 'Score',
