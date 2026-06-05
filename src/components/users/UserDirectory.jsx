@@ -41,12 +41,16 @@ function getDisplayName(user) {
   return name || user.username || 'Unknown user';
 }
 
-export default function UserDirectory({ title, subtitle, roleFilter }) {
+export default function UserDirectory({ title, subtitle, roleFilter, userFilter, emptyText }) {
   const { data, error, isLoading, mutate } = useUsers({ size: 100 });
 
   const users = useMemo(() => getUsersFromPage(data), [data]);
 
-  const visibleUsers = roleFilter ? users.filter((u) => getUserRole(u) === roleFilter) : users;
+  const visibleUsers = useMemo(() => {
+    const roleScopedUsers = roleFilter ? users.filter((u) => getUserRole(u) === roleFilter) : users;
+
+    return userFilter ? roleScopedUsers.filter((user) => userFilter(user, roleScopedUsers)) : roleScopedUsers;
+  }, [roleFilter, userFilter, users]);
 
   const columns = [
     {
@@ -186,7 +190,7 @@ export default function UserDirectory({ title, subtitle, roleFilter }) {
             dataSource={visibleUsers}
             rowKey={(u) => u.id || u.userId || u.email}
             loading={isLoading}
-            emptyText="No users found."
+            emptyText={emptyText || 'No users found.'}
             detailTitle={(u) => getDisplayName(u)}
             detailItems={(user) => [
               {
@@ -230,5 +234,7 @@ export default function UserDirectory({ title, subtitle, roleFilter }) {
 UserDirectory.propTypes = {
   title: PropTypes.string,
   subtitle: PropTypes.string,
-  roleFilter: PropTypes.string
+  roleFilter: PropTypes.string,
+  userFilter: PropTypes.func,
+  emptyText: PropTypes.string
 };

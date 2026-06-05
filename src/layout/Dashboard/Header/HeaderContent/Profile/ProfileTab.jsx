@@ -10,14 +10,17 @@ import ListItemText from '@mui/material/ListItemText';
 // assets
 import LogoutOutlined from '@ant-design/icons/LogoutOutlined';
 import UserOutlined from '@ant-design/icons/UserOutlined';
+import useAuth from 'hooks/useAuth';
+import { getPathForRole } from 'utils/roles';
 
 // ==============================|| HEADER PROFILE - PROFILE TAB ||============================== //
 
 export default function ProfileTab({ handleClose, handleLogout }) {
   const navigate = useNavigate();
+  const { role } = useAuth();
 
   const handleViewProfile = () => {
-    navigate('/profile');
+    navigate(getPathForRole(role, '/profile'));
     handleClose();
   };
 

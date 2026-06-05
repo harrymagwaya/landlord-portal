@@ -17,7 +17,7 @@ const users = {
   title: 'Users',
   type: 'group',
   icon: icons.TeamOutlined,
-  roles: ['SYSTEM_ADMIN'],
+  roles: ['SYSTEM_ADMIN', 'LANDLORD'],
   children: [
     {
       id: 'users-tenants',
@@ -25,7 +25,7 @@ const users = {
       type: 'item',
       url: '/users/tenants',
       icon: icons.TeamOutlined,
-      roles: ['SYSTEM_ADMIN']
+      roles: ['SYSTEM_ADMIN', 'LANDLORD']
     },
     {
       id: 'users-landlords',
@@ -35,7 +35,7 @@ const users = {
       icon: icons.UserSwitchOutlined,
       roles: ['SYSTEM_ADMIN']
     },
-     {
+    {
       id: 'users-loan-Admin',
       title: 'Loan Admin',
       type: 'item',
@@ -49,7 +49,7 @@ const users = {
       type: 'item',
       url: '/users/manage',
       icon: icons.UserAddOutlined,
-      roles: ['SYSTEM_ADMIN']
+      roles: ['SYSTEM_ADMIN', 'LANDLORD']
     }
   ]
 };

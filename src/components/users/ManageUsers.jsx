@@ -20,11 +20,14 @@ import * as Yup from 'yup';
 import MainCard from 'components/MainCard';
 import PageHeader from 'components/PageHeader';
 import { useUserActions } from 'hooks/useUsers';
+import useAuth from 'hooks/useAuth';
 
 // assets
 import UserAddOutlined from '@ant-design/icons/UserAddOutlined';
 
-const userRoles = ['SYSTEM_ADMIN', 'LOAN_ADMIN', 'LANDLORD', 'TENANT'];
+import { USER_ROLES } from 'utils/roles';
+
+const userRoles = [USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LOAN_ADMIN, USER_ROLES.LANDLORD, USER_ROLES.TENANT];
 const genders = ['MALE', 'FEMALE', 'OTHER'];
 
 const initialValues = {
@@ -54,12 +57,24 @@ const userSchema = Yup.object().shape({
 
 export default function ManageUsers() {
   const [notice, setNotice] = useState('');
+  const { role } = useAuth();
   const { registerUser } = useUserActions();
+
+  const isLandlord = role === USER_ROLES.LANDLORD;
+  const availableRoles = isLandlord ? [USER_ROLES.TENANT] : userRoles;
 
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
       <Grid size={12}>
-        <PageHeader title="Add User" description="Create a platform user with the role they should use in the portal." icon={UserAddOutlined} />
+        <PageHeader
+          title={isLandlord ? 'Add Tenant' : 'Add User'}
+          description={
+            isLandlord
+              ? 'Create a tenant account for your property and send them into the rental mobile app.'
+              : 'Create a platform user with the role they should use in the portal.'
+          }
+          icon={UserAddOutlined}
+        />
       </Grid>
 
       <Grid size={{ xs: 12, lg: 8 }}>
@@ -81,7 +96,7 @@ export default function ManageUsers() {
                 });
 
                 resetForm();
-                setNotice('User created successfully.');
+                setNotice(isLandlord ? 'Tenant created. Assign them to a rental profile to make them appear under My Tenants.' : 'User created successfully.');
               } catch (error) {
                 setErrors({ submit: error.message });
               } finally {
@@ -201,10 +216,16 @@ export default function ManageUsers() {
                   <Grid size={{ xs: 12, md: 6 }}>
                     <Stack sx={{ gap: 1 }}>
                       <InputLabel id="user-role-label">Role</InputLabel>
-                      <Select labelId="user-role-label" name="userRole" value={values.userRole} onChange={handleChange}>
-                        {userRoles.map((role) => (
-                          <MenuItem key={role} value={role}>
-                            {role}
+                      <Select
+                        labelId="user-role-label"
+                        name="userRole"
+                        value={values.userRole}
+                        onChange={handleChange}
+                        disabled={isLandlord}
+                      >
+                        {availableRoles.map((roleOption) => (
+                          <MenuItem key={roleOption} value={roleOption}>
+                            {roleOption}
                           </MenuItem>
                         ))}
                       </Select>
@@ -219,7 +240,7 @@ export default function ManageUsers() {
                   <Grid size={12}>
                     <Stack direction="row" sx={{ justifyContent: 'flex-end' }}>
                       <Button type="submit" variant="contained" disabled={isSubmitting}>
-                        Add User
+                        {isLandlord ? 'Add Tenant' : 'Add User'}
                       </Button>
                     </Stack>
                   </Grid>

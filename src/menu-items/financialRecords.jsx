@@ -28,7 +28,7 @@ const financialManagement = {
       url: '/financial-records/my-records',
       icon: icons.WalletOutlined,
 
-      roles: ['TENANT','LANDLORD', 'SYSTEM_ADMIN']
+      roles: ['TENANT']
     },
 
     // LANDLORD + ADMIN

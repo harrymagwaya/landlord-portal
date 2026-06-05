@@ -1,6 +1,7 @@
 import useSWR from 'swr';
 
-import { ACTOR_ID_HEADER, API_BASE_URL, APP_HEADER_KEY, APP_HEADER_VALUE, LOAN_ADMINS_ENDPOINT } from 'config';
+import { ACTOR_ID_HEADER, API_BASE_URL, APP_HEADER_KEY, LOAN_ADMINS_ENDPOINT } from 'config';
+import { getCurrentAppHeaderValue } from 'utils/appIdentity';
 
 import useAuth from './useAuth';
 
@@ -9,7 +10,7 @@ function getHeaders(token, actorId) {
     'Content-Type': 'application/json',
     ...(token && { Authorization: `Bearer ${token}` }),
     ...(actorId && { [ACTOR_ID_HEADER]: actorId }),
-    [APP_HEADER_KEY]: APP_HEADER_VALUE
+    [APP_HEADER_KEY]: getCurrentAppHeaderValue()
   };
 }
 

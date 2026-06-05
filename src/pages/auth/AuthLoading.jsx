@@ -11,7 +11,6 @@ import Typography from '@mui/material/Typography';
 
 // project imports
 import MainCard from 'components/MainCard';
-import { APP_DEFAULT_PATH } from 'config';
 import useAuth from 'hooks/useAuth';
 import useUserProfile from 'hooks/useUserProfile';
 import { getDefaultPathForRole } from 'utils/roles';
@@ -26,7 +25,7 @@ export default function AuthLoadingPage() {
     if (!role || isLoading) return undefined;
 
     const redirectTo = location.state?.redirectTo;
-    const nextPath = redirectTo && redirectTo !== APP_DEFAULT_PATH ? redirectTo : getDefaultPathForRole(role);
+    const nextPath = redirectTo && redirectTo !== '/' ? redirectTo : getDefaultPathForRole(role);
     const timer = window.setTimeout(() => navigate(nextPath, { replace: true }), 450);
 
     return () => window.clearTimeout(timer);

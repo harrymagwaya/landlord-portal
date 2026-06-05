@@ -10,9 +10,11 @@ import Typography from '@mui/material/Typography';
 
 import MainCard from 'components/MainCard';
 
+import useAuth from 'hooks/useAuth';
 import useUserProfile from 'hooks/useUserProfile';
 
 export default function ProfileHeader() {
+  const { appType } = useAuth();
   const { data: user } = useUserProfile();
   const role = user?.role || user?.userRole;
 
@@ -40,6 +42,8 @@ export default function ProfileHeader() {
             <Chip label={role || 'USER'} color="primary" />
 
             <Chip label={user?.status || 'ACTIVE'} color="success" />
+
+            {appType && <Chip label={appType} variant="outlined" />}
           </Stack>
         </Box>
 

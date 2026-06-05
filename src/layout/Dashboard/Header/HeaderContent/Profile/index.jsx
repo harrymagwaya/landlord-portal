@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // material-ui
 import ButtonBase from '@mui/material/ButtonBase';
@@ -20,6 +21,7 @@ import Transitions from 'components/@extended/Transitions';
 import IconButton from 'components/@extended/IconButton';
 import useAuth from 'hooks/useAuth';
 import useUserProfile from 'hooks/useUserProfile';
+import { getLoginPathForAppType, getLoginStateForAppType } from 'utils/appIdentity';
 
 // assets
 import LogoutOutlined from '@ant-design/icons/LogoutOutlined';
@@ -28,7 +30,8 @@ import avatar1 from 'assets/images/users/avatar-1.png';
 // ==============================|| HEADER CONTENT - PROFILE ||============================== //
 
 export default function Profile() {
-  const { logout, role, userId } = useAuth();
+  const navigate = useNavigate();
+  const { appType, logout, role, userId } = useAuth();
   const { data: userProfile } = useUserProfile();
   const displayName = [userProfile?.firstName, userProfile?.lastName].filter(Boolean).join(' ') || userProfile?.username || role || 'Portal User';
   const displayMeta = userProfile?.email || userId || 'Authenticated';
@@ -48,8 +51,12 @@ export default function Profile() {
   };
 
   const handleLogout = () => {
+    const nextLoginPath = getLoginPathForAppType(appType);
+    const nextState = getLoginStateForAppType(appType);
+
     logout();
     setOpen(false);
+    navigate(nextLoginPath, { replace: true, state: nextState });
   };
 
   return (

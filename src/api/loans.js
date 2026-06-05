@@ -1,13 +1,14 @@
 import useSWR from 'swr';
 
-import { API_BASE_URL, APP_HEADER_KEY, APP_HEADER_VALUE, LOANS_ENDPOINT } from 'config';
+import { API_BASE_URL, APP_HEADER_KEY, LOANS_ENDPOINT } from 'config';
+import { getCurrentAppHeaderValue } from 'utils/appIdentity';
 import useAuth from 'hooks/useAuth';
 
 function getHeaders(token) {
   return {
     'Content-Type': 'application/json',
     Authorization: `Bearer ${token}`,
-    [APP_HEADER_KEY]: APP_HEADER_VALUE
+    [APP_HEADER_KEY]: getCurrentAppHeaderValue()
   };
 }
 

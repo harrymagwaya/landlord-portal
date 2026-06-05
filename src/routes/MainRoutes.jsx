@@ -1,4 +1,5 @@
 import { lazy } from 'react';
+import { Navigate, Outlet } from 'react-router-dom';
 
 // project imports
 import Loadable from 'components/Loadable';
@@ -6,7 +7,9 @@ import DashboardLayout from 'layout/Dashboard';
 import AuthGuard from './AuthGuard';
 import RoleGuard from './RoleGuard';
 import RoleRedirect from './RoleRedirect';
-import { USER_ROLES } from 'utils/roles';
+import TenantRoutes from './TenantRoutes';
+import useAuth from 'hooks/useAuth';
+import { getPathForRole, USER_ROLES } from 'utils/roles';
 
 // render- Dashboard
 const DashboardDefault = Loadable(lazy(() => import('pages/dashboard/default')));
@@ -52,6 +55,16 @@ const SamplePage = Loadable(lazy(() => import('pages/extra-pages/sample-page')))
 
 const ProfilePage = Loadable(lazy(() => import('pages/profile/profile')));
 
+function RolePathRedirect({ to }) {
+  const { role } = useAuth();
+
+  if (role) {
+    return <Navigate to={getPathForRole(role, to)} replace />;
+  }
+
+  return <Outlet />;
+}
+
 // ==============================|| MAIN ROUTING ||============================== //
 
 const MainRoutes = {
@@ -59,227 +72,212 @@ const MainRoutes = {
   element: <AuthGuard />,
   children: [
     {
+      index: true,
+      element: <RoleRedirect />
+    },
+    {
       path: 'auth/loading',
       element: <AuthLoadingPage />
     },
+    TenantRoutes,
     {
-      path: '/',
-      element: <DashboardLayout />,
+      path: 'admin',
+      element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN]} />,
       children: [
         {
-          path: '/',
-          element: <RoleRedirect />
-        },
-
-        // ==============================|| DASHBOARD ||============================== //
-
-        {
-          path: 'dashboard',
+          path: '',
+          element: <DashboardLayout />,
           children: [
             {
-              path: 'default',
-              element: <DashboardDefault />
-            }
-          ]
-        },
-
-        // ==============================|| COMPONENT PAGES ||============================== //
-
-        {
-          path: 'typography',
-          element: <Typography />
-        },
-        {
-          path: 'color',
-          element: <Color />
-        },
-        {
-          path: 'shadow',
-          element: <Shadow />
-        },
-        {
-          path: 'sample-page',
-          element: <SamplePage />
-        },
-
-        // ==============================|| LOANS ||============================== //
-
-        {
-          path: 'loans',
-          element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LOAN_ADMIN]} />,
-          children: [
-            {
-              path: 'review',
-              element: <LoanReviewPage />
-            }
-          ]
-        },
-        {
-          path: 'profile',
-          children: [
-            {
-              path: '',
-              element: <ProfilePage />
-            }
-          ]
-        },
-
-        // ==============================|| USERS ||============================== //
-
-        {
-          path: 'users',
-          element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN]} />,
-          children: [
-            {
-              path: 'tenants',
-              element: <TenantsPage />
-            },
-            {
-              path: 'landlords',
-              element: <LandlordsPage />
-            },
-            {
-              path: 'loan-admins',
-              element: <LoanAdminsPage />
-            },
-            {
-              path: 'manage',
-              element: <ManageUsersPage />
-            }
-          ]
-        },
-
-        // ==============================|| PROPERTIES ||============================== //
-
-        {
-          path: 'properties',
-          element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LANDLORD]} />,
-          children: [
-            {
-              path: '',
-              element: <PropertyPage />
-            },
-            {
-              path: 'units',
-              element: <PropertyUnitsPage />
-            }
-          ]
-        },
-        {
-          path: 'rental-profiles',
-          element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LANDLORD]} />,
-          children: [
-            {
-              path: '',
-              element: <RentalProfilesPage />
-            }
-          ]
-        },
-
-        // ==============================|| RISK ENGINE ||============================== //
-
-        {
-          path: 'risk',
-          element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LOAN_ADMIN]} />,
-          children: [
-            {
-              path: 'weights',
-              element: <RiskWeightPage />
-            },
-            {
-              path: 'ai-weights',
-              element: <AiRiskWeightsPage />
-            },
-            {
-              path: 'analytics',
-              element: <RiskAnalyticsDashboard />
-            }
-          ]
-        },
-
-        // ==============================|| ELIGIBILITY ||============================== //
-
-        {
-          path: 'eligibility',
-          element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LOAN_ADMIN]} />,
-          children: [
-            {
-              path: '',
-              element: <EligibilityPage />
-            },
-            {
-              path: 'overview',
-              element: <EligibilityOverviewPage />
-            },
-            {
-              path: 'assessments',
-              element: <EligibilityAssessmentsPage />
+              path: 'dashboard',
+              children: [{ path: 'default', element: <DashboardDefault /> }]
             },
             {
               path: 'profile',
-              element: <EligibilityProfilePage />
+              element: <ProfilePage />
             },
             {
-              path: 'profile/:tenantId',
-              element: <EligibilityProfilePage />
-            }
-          ]
-        },
-
-        // ==============================|| FINANCIAL CAPACITY ||============================== //
-
-        {
-          path: 'financial-capacity',
-          element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LOAN_ADMIN]} />,
-          children: [
+              path: 'users',
+              children: [
+                { path: 'tenants', element: <TenantsPage /> },
+                { path: 'landlords', element: <LandlordsPage /> },
+                { path: 'loan-admins', element: <LoanAdminsPage /> },
+                { path: 'manage', element: <ManageUsersPage /> }
+              ]
+            },
             {
-              path: '',
-              element: <TenantCapacityPage />
+              path: 'properties',
+              children: [
+                { path: '', element: <PropertyPage /> },
+                { path: 'units', element: <PropertyUnitsPage /> }
+              ]
+            },
+            {
+              path: 'rental-profiles',
+              children: [{ path: '', element: <RentalProfilesPage /> }]
+            },
+            {
+              path: 'risk',
+              children: [
+                { path: 'weights', element: <RiskWeightPage /> },
+                { path: 'ai-weights', element: <AiRiskWeightsPage /> },
+                { path: 'analytics', element: <RiskAnalyticsDashboard /> }
+              ]
             },
             {
               path: 'eligibility',
-              element: <EligibilityPage />
+              children: [
+                { path: '', element: <EligibilityPage /> },
+                { path: 'overview', element: <EligibilityOverviewPage /> },
+                { path: 'assessments', element: <EligibilityAssessmentsPage /> },
+                { path: 'profile', element: <EligibilityProfilePage /> },
+                { path: 'profile/:tenantId', element: <EligibilityProfilePage /> }
+              ]
             },
             {
-              path: 'risk-analysis',
-              element: <RiskAnalyticsDashboard />
-            }
-          ]
-        },
-
-        // ==============================|| TENANT FINANCIAL RECORDS ||============================== //
-
-        {
-          path: 'financial-records',
-          element: <RoleGuard allowedRoles={[USER_ROLES.TENANT, USER_ROLES.LANDLORD, USER_ROLES.SYSTEM_ADMIN]} />,
-          children: [
-            {
-              path: '',
-              element: <TenantFinancialRecordsPage />
+              path: 'financial-capacity',
+              children: [
+                { path: '', element: <TenantCapacityPage /> },
+                { path: 'eligibility', element: <EligibilityPage /> },
+                { path: 'risk-analysis', element: <RiskAnalyticsDashboard /> }
+              ]
             },
             {
-              path: 'my-records',
-              element: <TenantFinancialRecordsPage />
-            }
+              path: 'financial-records',
+              children: [
+                { path: '', element: <TenantFinancialRecordsPage /> },
+                { path: 'my-records', element: <TenantFinancialRecordsPage /> }
+              ]
+            },
+            {
+              path: 'payment-operations',
+              element: <PaymentOperationsPage />
+            },
+            {
+              path: 'rent-roll',
+              element: <RentRollPage />
+            },
+            {
+              path: 'ledger-history',
+              element: <LedgerHistoryPage />
+            },
+            {
+              path: 'behavioral',
+              children: [
+                { path: 'snapshots', element: <BehavioralSnapshotsPage /> },
+                { path: 'analytics', element: <BehavioralAnalyticsPage /> },
+                { path: 'timeline', element: <BehavioralTimelinePage /> },
+                { path: 'profile', element: <BehavioralProfilePage /> },
+                { path: 'profile/:id', element: <BehavioralProfilePage /> }
+              ]
+            },
+            {
+              path: 'loans',
+              children: [{ path: 'review', element: <LoanReviewPage /> }]
+            },
+            { path: 'typography', element: <Typography /> },
+            { path: 'color', element: <Color /> },
+            { path: 'shadow', element: <Shadow /> },
+            { path: 'sample-page', element: <SamplePage /> }
           ]
-        },
-
-        // ==============================|| PAYMENT OPERATIONS ||============================== //
-
+        }
+      ]
+    },
+    {
+      path: 'loan',
+      element: <RoleGuard allowedRoles={[USER_ROLES.LOAN_ADMIN]} />,
+      children: [
         {
-          path: 'payment-operations',
-          element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LOAN_ADMIN, USER_ROLES.LANDLORD]} />,
+          path: '',
+          element: <DashboardLayout />,
           children: [
             {
-              path: '',
+              path: 'dashboard',
+              children: [{ path: 'default', element: <DashboardDefault /> }]
+            },
+            {
+              path: 'profile',
+              element: <ProfilePage />
+            },
+            {
+              path: 'loans',
+              children: [{ path: 'review', element: <LoanReviewPage /> }]
+            },
+            {
+              path: 'risk',
+              children: [
+                { path: 'weights', element: <RiskWeightPage /> },
+                { path: 'ai-weights', element: <AiRiskWeightsPage /> },
+                { path: 'analytics', element: <RiskAnalyticsDashboard /> }
+              ]
+            },
+            {
+              path: 'eligibility',
+              children: [
+                { path: '', element: <EligibilityPage /> },
+                { path: 'overview', element: <EligibilityOverviewPage /> },
+                { path: 'assessments', element: <EligibilityAssessmentsPage /> },
+                { path: 'profile', element: <EligibilityProfilePage /> },
+                { path: 'profile/:tenantId', element: <EligibilityProfilePage /> }
+              ]
+            },
+            {
+              path: 'financial-capacity',
+              children: [
+                { path: '', element: <TenantCapacityPage /> },
+                { path: 'eligibility', element: <EligibilityPage /> },
+                { path: 'risk-analysis', element: <RiskAnalyticsDashboard /> }
+              ]
+            },
+            {
+              path: 'payment-operations',
               element: <PaymentOperationsPage />
             }
           ]
-        },
+        }
+      ]
+    },
+    {
+      path: 'landlord',
+      element: <RoleGuard allowedRoles={[USER_ROLES.LANDLORD]} />,
+      children: [
         {
-          path: 'landlord',
-          element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LOAN_ADMIN, USER_ROLES.LANDLORD]} />,
+          path: '',
+          element: <DashboardLayout />,
           children: [
+            {
+              path: 'dashboard',
+              children: [{ path: 'default', element: <DashboardDefault /> }]
+            },
+            {
+              path: 'profile',
+              element: <ProfilePage />
+            },
+            {
+              path: 'users',
+              children: [
+                { path: 'tenants', element: <TenantsPage /> },
+                { path: 'manage', element: <ManageUsersPage /> }
+              ]
+            },
+            {
+              path: 'properties',
+              children: [
+                { path: '', element: <PropertyPage /> },
+                { path: 'units', element: <PropertyUnitsPage /> }
+              ]
+            },
+            {
+              path: 'rental-profiles',
+              children: [{ path: '', element: <RentalProfilesPage /> }]
+            },
+            {
+              path: 'financial-records',
+              children: [
+                { path: '', element: <TenantFinancialRecordsPage /> },
+                { path: 'my-records', element: <TenantFinancialRecordsPage /> }
+              ]
+            },
             {
               path: 'payment-operations',
               element: <PaymentOperationsPage />
@@ -293,33 +291,272 @@ const MainRoutes = {
               element: <LedgerHistoryPage />
             }
           ]
-        },
-
-        // ==============================|| BEHAVIORAL FEATURES ||============================== //
-
+        }
+      ]
+    },
+    {
+      path: 'profile',
+      element: <RolePathRedirect to="/profile" />,
+      children: [
         {
-          path: 'behavioral',
-          element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LOAN_ADMIN]} />,
+          path: '',
+          element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LOAN_ADMIN, USER_ROLES.LANDLORD]} />,
           children: [
             {
-              path: 'snapshots',
-              element: <BehavioralSnapshotsPage />
+              path: '',
+              element: <DashboardLayout />,
+              children: [
+                {
+                  index: true,
+                  element: <ProfilePage />
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      path: 'financial-records',
+      element: <RolePathRedirect to="/financial-records" />,
+      children: [
+        {
+          path: '',
+          element: <RoleGuard allowedRoles={[USER_ROLES.LANDLORD, USER_ROLES.SYSTEM_ADMIN]} />,
+          children: [
+            {
+              path: '',
+              element: <DashboardLayout />,
+              children: [
+                {
+                  index: true,
+                  element: <TenantFinancialRecordsPage />
+                },
+                {
+                  path: 'my-records',
+                  element: <TenantFinancialRecordsPage />
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      path: '/',
+      element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LOAN_ADMIN, USER_ROLES.LANDLORD]} />,
+      children: [
+        {
+          path: '',
+          element: <DashboardLayout />,
+          children: [
+            // ==============================|| DASHBOARD ||============================== //
+
+            {
+              path: 'dashboard',
+              children: [
+                {
+                  path: 'default',
+                  element: <DashboardDefault />
+                }
+              ]
+            },
+
+            // ==============================|| COMPONENT PAGES ||============================== //
+
+            {
+              path: 'typography',
+              element: <Typography />
             },
             {
-              path: 'analytics',
-              element: <BehavioralAnalyticsPage />
+              path: 'color',
+              element: <Color />
             },
             {
-              path: 'timeline',
-              element: <BehavioralTimelinePage />
+              path: 'shadow',
+              element: <Shadow />
             },
             {
-              path: 'profile',
-              element: <BehavioralProfilePage />
+              path: 'sample-page',
+              element: <SamplePage />
+            },
+
+            // ==============================|| LOANS ||============================== //
+
+            {
+              path: 'loans',
+              element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LOAN_ADMIN]} />,
+              children: [
+                {
+                  path: 'review',
+                  element: <LoanReviewPage />
+                }
+              ]
+            },
+
+            // ==============================|| USERS ||============================== //
+
+            {
+              path: 'users',
+              element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN]} />,
+              children: [
+                {
+                  path: 'tenants',
+                  element: <TenantsPage />
+                },
+                {
+                  path: 'landlords',
+                  element: <LandlordsPage />
+                },
+                {
+                  path: 'loan-admins',
+                  element: <LoanAdminsPage />
+                },
+                {
+                  path: 'manage',
+                  element: <ManageUsersPage />
+                }
+              ]
+            },
+
+            // ==============================|| PROPERTIES ||============================== //
+
+            {
+              path: 'properties',
+              element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LANDLORD]} />,
+              children: [
+                {
+                  path: '',
+                  element: <PropertyPage />
+                },
+                {
+                  path: 'units',
+                  element: <PropertyUnitsPage />
+                }
+              ]
             },
             {
-              path: 'profile/:id',
-              element: <BehavioralProfilePage />
+              path: 'rental-profiles',
+              element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LANDLORD]} />,
+              children: [
+                {
+                  path: '',
+                  element: <RentalProfilesPage />
+                }
+              ]
+            },
+
+            // ==============================|| RISK ENGINE ||============================== //
+
+            {
+              path: 'risk',
+              element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LOAN_ADMIN]} />,
+              children: [
+                {
+                  path: 'weights',
+                  element: <RiskWeightPage />
+                },
+                {
+                  path: 'ai-weights',
+                  element: <AiRiskWeightsPage />
+                },
+                {
+                  path: 'analytics',
+                  element: <RiskAnalyticsDashboard />
+                }
+              ]
+            },
+
+            // ==============================|| ELIGIBILITY ||============================== //
+
+            {
+              path: 'eligibility',
+              element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LOAN_ADMIN]} />,
+              children: [
+                {
+                  path: '',
+                  element: <EligibilityPage />
+                },
+                {
+                  path: 'overview',
+                  element: <EligibilityOverviewPage />
+                },
+                {
+                  path: 'assessments',
+                  element: <EligibilityAssessmentsPage />
+                },
+                {
+                  path: 'profile',
+                  element: <EligibilityProfilePage />
+                },
+                {
+                  path: 'profile/:tenantId',
+                  element: <EligibilityProfilePage />
+                }
+              ]
+            },
+
+            // ==============================|| FINANCIAL CAPACITY ||============================== //
+
+            {
+              path: 'financial-capacity',
+              element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LOAN_ADMIN]} />,
+              children: [
+                {
+                  path: '',
+                  element: <TenantCapacityPage />
+                },
+                {
+                  path: 'eligibility',
+                  element: <EligibilityPage />
+                },
+                {
+                  path: 'risk-analysis',
+                  element: <RiskAnalyticsDashboard />
+                }
+              ]
+            },
+
+            // ==============================|| PAYMENT OPERATIONS ||============================== //
+
+            {
+              path: 'payment-operations',
+              element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LOAN_ADMIN, USER_ROLES.LANDLORD]} />,
+              children: [
+                {
+                  path: '',
+                  element: <PaymentOperationsPage />
+                }
+              ]
+            },
+
+            // ==============================|| BEHAVIORAL FEATURES ||============================== //
+
+            {
+              path: 'behavioral',
+              element: <RoleGuard allowedRoles={[USER_ROLES.SYSTEM_ADMIN, USER_ROLES.LOAN_ADMIN]} />,
+              children: [
+                {
+                  path: 'snapshots',
+                  element: <BehavioralSnapshotsPage />
+                },
+                {
+                  path: 'analytics',
+                  element: <BehavioralAnalyticsPage />
+                },
+                {
+                  path: 'timeline',
+                  element: <BehavioralTimelinePage />
+                },
+                {
+                  path: 'profile',
+                  element: <BehavioralProfilePage />
+                },
+                {
+                  path: 'profile/:id',
+                  element: <BehavioralProfilePage />
+                }
+              ]
             }
           ]
         }

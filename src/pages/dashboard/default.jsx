@@ -33,6 +33,7 @@ import SaleReportCard from 'sections/dashboard/default/SaleReportCard';
 import OrdersTable from 'sections/dashboard/default/OrdersTable';
 import useAuth from 'hooks/useAuth';
 import useUserProfile from 'hooks/useUserProfile';
+import { getPathForRole } from 'utils/roles';
 
 // assets
 import EllipsisOutlined from '@ant-design/icons/EllipsisOutlined';
@@ -83,6 +84,7 @@ function formatCurrency(value) {
 
 function LoanAdminDashboard({ fullName }) {
   const { data: pendingLoans = [], error, isLoading } = useLoanApplications('PENDING');
+  const { role } = useAuth();
   const requestedAmount = pendingLoans.reduce((total, loan) => total + Number(getLoanAmount(loan)), 0);
   const highScoreCount = pendingLoans.filter((loan) => Number(loan.score || loan.creditScore || 0) >= 700).length;
 
@@ -110,7 +112,7 @@ function LoanAdminDashboard({ fullName }) {
             <Typography variant="h6" color="text.secondary">
               Review Queue
             </Typography>
-            <Button component={RouterLink} to="/loans/review" variant="contained" size="small">
+            <Button component={RouterLink} to={getPathForRole(role, '/loans/review')} variant="contained" size="small">
               Open Reviews
             </Button>
           </Stack>
@@ -123,7 +125,7 @@ function LoanAdminDashboard({ fullName }) {
             <Typography variant="h5">Applications Needing Review</Typography>
           </Grid>
           <Grid>
-            <Button component={RouterLink} to="/loans/review" size="small">
+            <Button component={RouterLink} to={getPathForRole(role, '/loans/review')} size="small">
               View All
             </Button>
           </Grid>

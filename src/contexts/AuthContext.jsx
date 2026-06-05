@@ -1,20 +1,23 @@
 import PropTypes from 'prop-types';
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { API_BASE_URL, APP_HEADER_KEY, APP_HEADER_VALUE, LOGIN_ENDPOINT } from 'config';
-import { ALLOWED_ROLES } from 'utils/roles';
+import { API_BASE_URL, APP_HEADER_KEY, LOGIN_ENDPOINT } from 'config';
+import { getCurrentAppHeaderValue } from 'utils/appIdentity';
+import { ALLOWED_ROLES, getAppIdForRole } from 'utils/roles';
 
 export const AUTH_STORAGE_KEY = 'lando-auth-session';
 export const AUTH_TOKEN_KEY = 'token';
 export const AUTH_USER_ID_KEY = 'userId';
 export const AUTH_ROLE_KEY = 'role';
 export const AUTH_EXPIRES_IN_KEY = 'expiresIn';
+export const AUTH_APP_TYPE_KEY = 'appType';
 
 const initialState = {
   token: null,
   userId: null,
   role: null,
-  expiresIn: null
+  expiresIn: null,
+  appType: null
 };
 
 const AuthContext = createContext({
@@ -61,7 +64,8 @@ function normalizeLoginResponse(response) {
     token: response?.[AUTH_TOKEN_KEY],
     userId: response?.[AUTH_USER_ID_KEY],
     role: response?.[AUTH_ROLE_KEY],
-    expiresIn: Number(response?.[AUTH_EXPIRES_IN_KEY])
+    expiresIn: Number(response?.[AUTH_EXPIRES_IN_KEY]),
+    appType: response?.[AUTH_APP_TYPE_KEY] || response?.appName || getAppIdForRole(response?.[AUTH_ROLE_KEY])
   };
 }
 
@@ -77,12 +81,14 @@ export function AuthProvider({ children }) {
     setSession(initialState);
   }, []);
 
-  const login = useCallback(async ({ email, password }) => {
+  const login = useCallback(async ({ email, password, appType }) => {
+    const resolvedAppType = appType || getCurrentAppHeaderValue();
+
     const response = await fetch(getLoginUrl(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        [APP_HEADER_KEY]: APP_HEADER_VALUE
+        [APP_HEADER_KEY]: resolvedAppType
       },
       body: JSON.stringify({ email, password })
     });
@@ -101,6 +107,12 @@ export function AuthProvider({ children }) {
 
     if (!ALLOWED_ROLES.includes(nextSession.role)) {
       throw new Error('Your role is not allowed to access this portal.');
+    }
+
+    const expectedAppType = getAppIdForRole(nextSession.role);
+
+    if (resolvedAppType && expectedAppType !== resolvedAppType) {
+      throw new Error(`Your account type (${nextSession.role}) is not permitted to access ${resolvedAppType}.`);
     }
 
     if (nextSession.expiresIn <= Date.now()) {
