@@ -181,7 +181,7 @@ export default function LandingPage() {
                 <HomeOutlined style={{ color: '#fff', fontSize: 20 }} />
               </Box>
               <Typography variant="h5" fontWeight={800} color="#0f172a" letterSpacing="-0.5px">
-                RentScore
+                Xpro Score
               </Typography>
             </Stack>
 
@@ -368,7 +368,7 @@ export default function LandingPage() {
                 </Typography>
 
                 <Typography variant="h6" sx={{ opacity: 0.9, mb: 4, maxWidth: 520, lineHeight: 1.6 }}>
-                  For millions of thin-file and credit-invisible individuals in Uganda, formal credit remains out of reach. RentScore
+                  For millions of thin-file and credit-invisible individuals in Uganda, formal credit remains out of reach. Xpro Score
                   transforms your rental payments, utility bills, mobile money transactions, and savings contributions into a real-time
                   behavioral credit profile.
                 </Typography>
@@ -570,7 +570,7 @@ export default function LandingPage() {
                 Three Sectors. One Mission.
               </Typography>
               <Typography variant="h6" color="text.secondary" maxWidth={700} mx="auto">
-                Whether you are building a credit profile, managing rental properties, or assessing risk — RentScore connects all parties
+                Whether you are building a credit profile, managing rental properties, or assessing risk — Xpro Score connects all parties
                 through verified behavioral data.
               </Typography>
             </Box>
@@ -599,7 +599,7 @@ export default function LandingPage() {
                 </Typography>
                 <Typography color="text.secondary" sx={{ mb: 4, lineHeight: 1.8 }}>
                   Access to formal credit remains a significant challenge for thin-file populations in Uganda. Traditional systems rely on
-                  bank statements, salary records, and collateral — leaving millions excluded. RentScore changes this by transforming your
+                  bank statements, salary records, and collateral — leaving millions excluded. Xpro Score changes this by transforming your
                   everyday financial activities into a measurable credit profile.
                   <br />
                   <br />
@@ -768,7 +768,7 @@ export default function LandingPage() {
                     Verify Payments. Build Trust.
                   </Typography>
                   <Typography color="text.secondary" sx={{ mb: 4, lineHeight: 1.8 }}>
-                    RentScore provides landlords with a structured rental management system that goes beyond rent collection. By verifying
+                    Xpro Score provides landlords with a structured rental management system that goes beyond rent collection. By verifying
                     tenant payments within the platform, you generate immutable, trusted records that serve as alternative collateral for
                     credit assessment.
                     <br />
@@ -829,7 +829,7 @@ export default function LandingPage() {
                   </Typography>
                   <Typography color="text.secondary" sx={{ mb: 4, lineHeight: 1.8 }}>
                     Traditional credit scoring relies on static, historical banking records that exclude millions of financially responsible
-                    individuals. RentScore offers an event-driven alternative: continuous behavioral snapshots streamed directly to your
+                    individuals. Xpro Score offers an event-driven alternative: continuous behavioral snapshots streamed directly to your
                     risk dashboard.
                     <br />
                     <br />
@@ -1044,7 +1044,7 @@ export default function LandingPage() {
                 Configurable, Explainable, and Auditable
               </Typography>
               <Typography color="text.secondary" maxWidth={700} mx="auto" sx={{ mb: 5, lineHeight: 1.7 }}>
-                RentScore employs a proprietary multi-criteria behavioral assessment engine. Every eligibility rating is accompanied by a
+                Xpro Score employs a proprietary multi-criteria behavioral assessment engine. Every eligibility rating is accompanied by a
                 transparent reasoning trail — showing exactly which behavioral patterns contributed to the assessment, without exposing the
                 underlying proprietary weighting logic.
               </Typography>
@@ -1148,7 +1148,7 @@ export default function LandingPage() {
                 Common Questions
               </Typography>
               <Typography variant="h6" color="text.secondary">
-                Understanding behavioral credit scoring and how RentScore works.
+                Understanding behavioral credit scoring and how Xpro Score works.
               </Typography>
             </Box>
           </ScrollReveal>
@@ -1164,7 +1164,7 @@ export default function LandingPage() {
                 answer="Yes. Academic research and commercial platforms like Experian's Rental Exchange have demonstrated that recurring financial obligations — particularly rent, utilities, and mobile money patterns — provide strong signals of financial discipline and repayment capacity. Our framework builds on this evidence using real-time behavioral analytics."
               />
               <FaqItem
-                question="What financial activities does RentScore track?"
+                question="What financial activities does Xpro Score track?"
                 answer="The system captures rental payments, utility bills (Umeme, NWSC), mobile money transactions, SACCO contributions, savings deposits, school fees, airtime purchases, and even high-priority social obligations like wedding and funeral contributions. These reflect real-world financial weight and community reliability."
               />
               <FaqItem
@@ -1172,7 +1172,7 @@ export default function LandingPage() {
                 answer="The algorithm assigns configurable weights to three behavioral pillars: Rent Consistency (Rc), Rent Timeliness (Rt), and Verified Behavioral Interaction (Vb). These are combined into an Eligibility Score (ES) that estimates Probability of Default (PD) without relying on traditional credit bureau data."
               />
               <FaqItem
-                question="Who can use RentScore?"
+                question="Who can use Xpro Score?"
                 answer="Three primary user groups: (1) Tenants and everyday individuals who want to build a credit profile from their daily payments; (2) Landlords and property managers who need a rental system and want to verify tenant payments; and (3) Loan administrators and financial institutions who need real-time behavioral snapshots for risk analysis."
               />
               <FaqItem
@@ -1185,7 +1185,7 @@ export default function LandingPage() {
               />
               <FaqItem
                 question="How is this different from apps like Tala or Branch?"
-                answer="While Tala and Branch rely heavily on smartphone metadata and digital footprints, RentScore focuses on substantive, recurring financial obligations. We track the magnitude and timeliness of real-world commitments rather than device usage patterns, offering a more stable and context-specific measure of financial responsibility."
+                answer="While Tala and Branch rely heavily on smartphone metadata and digital footprints, Xpro Score focuses on substantive, recurring financial obligations. We track the magnitude and timeliness of real-world commitments rather than device usage patterns, offering a more stable and context-specific measure of financial responsibility."
               />
             </Stack>
           </ScrollReveal>
@@ -1309,7 +1309,7 @@ export default function LandingPage() {
                   <HomeOutlined style={{ color: '#fff', fontSize: 20 }} />
                 </Box>
                 <Typography variant="h5" fontWeight={800} letterSpacing="-0.5px">
-                  RentScore
+                  Xpro Score
                 </Typography>
               </Stack>
               <Typography color="grey.400" sx={{ mb: 3, lineHeight: 1.7 }}>
@@ -1362,7 +1362,7 @@ export default function LandingPage() {
 
           <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems="center" spacing={2}>
             <Typography color="grey.500" fontSize="0.875rem">
-              2026 RentScore. All rights reserved.
+              2026 Xpro Score. All rights reserved.
             </Typography>
             <Stack direction="row" spacing={3}>
               <Typography color="grey.500" fontSize="0.875rem" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
