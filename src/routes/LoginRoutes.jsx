@@ -28,6 +28,10 @@ const LoginRoutes = {
           element: <RegisterPage />
         },
         {
+          path: '/user/register',
+          element: <RegisterPage />
+        },
+        {
           path: '/user/login',
           element: <TenantLoginPage />
         },

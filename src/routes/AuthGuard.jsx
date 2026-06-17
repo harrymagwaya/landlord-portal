@@ -14,6 +14,11 @@ function getLoginPath(pathname) {
 export default function AuthGuard() {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
+  const normalizedPath = String(location.pathname || '').replace(/^\/free(?=\/|$)/, '');
+
+  if (normalizedPath === '/') {
+    return <Outlet />;
+  }
 
   if (!isAuthenticated) {
     return <Navigate to={getLoginPath(location.pathname)} state={{ from: location }} replace />;

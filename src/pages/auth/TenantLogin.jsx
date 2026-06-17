@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 // material-ui
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
@@ -19,6 +20,11 @@ export default function TenantLogin() {
         </Grid>
         <Grid size={12}>
           <AuthLogin forcedAppType="XPRO_RENTAL_MOBILE_APP" allowPortalSelection={false} />
+        </Grid>
+        <Grid size={12}>
+          <Typography component={Link} to={'/user/register'} variant="body2" sx={{ textDecoration: 'none' }} color="primary">
+            Need a tenant account? Create one here
+          </Typography>
         </Grid>
       </Grid>
     </AuthWrapper>

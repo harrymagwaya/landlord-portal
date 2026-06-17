@@ -13,6 +13,7 @@ import { getPathForRole, USER_ROLES } from 'utils/roles';
 
 // render- Dashboard
 const DashboardDefault = Loadable(lazy(() => import('pages/dashboard/default')));
+const LandingPage = Loadable(lazy(() => import('pages/landing')));
 const LoanReviewPage = Loadable(lazy(() => import('pages/loans/review')));
 const AuthLoadingPage = Loadable(lazy(() => import('pages/auth/AuthLoading')));
 const TenantsPage = Loadable(lazy(() => import('pages/users/tenants')));
@@ -65,6 +66,16 @@ function RolePathRedirect({ to }) {
   return <Outlet />;
 }
 
+function PublicEntryPage() {
+  const { isAuthenticated } = useAuth();
+
+  if (isAuthenticated) {
+    return <RoleRedirect />;
+  }
+
+  return <LandingPage />;
+}
+
 // ==============================|| MAIN ROUTING ||============================== //
 
 const MainRoutes = {
@@ -73,7 +84,7 @@ const MainRoutes = {
   children: [
     {
       index: true,
-      element: <RoleRedirect />
+      element: <PublicEntryPage />
     },
     {
       path: 'auth/loading',
