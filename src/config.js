@@ -3,7 +3,11 @@
 export const APP_DEFAULT_PATH = '/';
 export const DRAWER_WIDTH = 260;
 export const MINI_DRAWER_WIDTH = 60;
-export const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_APP_API_URL || 'http://localhost:8081';
+const APP_BASE_NAME = import.meta.env.VITE_APP_BASE_NAME || '/';
+const NORMALIZED_APP_BASE_NAME = APP_BASE_NAME === '/' ? '' : APP_BASE_NAME.replace(/\/$/, '');
+const DEFAULT_API_BASE_URL = NORMALIZED_APP_BASE_NAME;
+const RAW_API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_APP_API_URL || DEFAULT_API_BASE_URL;
+export const API_BASE_URL = RAW_API_BASE_URL.replace(/\/$/, '');
 export const LOGIN_ENDPOINT = import.meta.env.VITE_APP_LOGIN_ENDPOINT || '/api/v1/auth/login';
 export const USERS_ENDPOINT = '/api/v1/users';
 export const LOANS_ENDPOINT = import.meta.env.VITE_APP_LOANS_ENDPOINT || '/api/v1/loans';
