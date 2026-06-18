@@ -36,7 +36,7 @@ const financialManagement = {
       id: 'payment-operations',
       title: 'Payment Operations',
       type: 'item',
-      url: '/landlord/payment-operations',
+      url: '/payment-operations',
       icon: icons.AuditOutlined,
 
       roles: ['LANDLORD', 'SYSTEM_ADMIN', 'LOAN_ADMIN']
@@ -46,7 +46,7 @@ const financialManagement = {
       id: 'property-rent-roll',
       title: 'Property Rent Roll',
       type: 'item',
-      url: '/landlord/rent-roll',
+      url: '/rent-roll',
       icon: icons.ApartmentOutlined,
 
       roles: ['LANDLORD', 'SYSTEM_ADMIN']
@@ -56,7 +56,7 @@ const financialManagement = {
       id: 'payment-history',
       title: 'Ledger History',
       type: 'item',
-      url: '/landlord/ledger-history',
+      url: '/ledger-history',
       icon: icons.HistoryOutlined,
 
       roles: ['LANDLORD', 'SYSTEM_ADMIN']
