@@ -6,8 +6,10 @@ import { useMemo, useState } from 'react';
 
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
+import Autocomplete from '@mui/material/Autocomplete';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Drawer from '@mui/material/Drawer';
 import Box from '@mui/material/Box';
@@ -27,6 +29,8 @@ import AdvancedTable from 'components/AdvancedTable';
 import PageHeader from 'components/PageHeader';
 
 import { useAllFinancialRecords, useFinancialRecordActions } from 'hooks/useFinancial';
+import { useUsers } from 'hooks/useUsers';
+import { USER_ROLES } from 'utils/roles';
 
 import AuditOutlined from '@ant-design/icons/AuditOutlined';
 import CloseOutlined from '@ant-design/icons/CloseOutlined';
@@ -46,15 +50,31 @@ const STATUS_COLORS = {
 };
 
 export default function PaymentOperations() {
+  const [selectedUserId, setSelectedUserId] = useState('');
   const { data, isLoading, error, mutate } = useAllFinancialRecords({ size: 100 });
   const { updateFinancialRecordStatus } = useFinancialRecordActions();
+  const { data: usersData, isLoading: isUsersLoading } = useUsers({ size: 500 });
 
   // Drawer State
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const records = useMemo(() => extractList(data), [data]);
+  const userOptions = useMemo(
+    () =>
+      extractList(usersData)
+        .filter((user) => (user?.userRole || user?.role || user?.userType) === USER_ROLES.TENANT)
+        .map((user) => ({
+          id: user.id,
+          label: [user.firstName, user.lastName].filter(Boolean).join(' ') || user.username || user.email || user.id
+        })),
+    [usersData]
+  );
+  const records = useMemo(() => {
+    const rows = extractList(data);
+    if (!selectedUserId) return rows;
+    return rows.filter((record) => (record.tenantId || record?.tenant?.id || record?.tenant?.userId) === selectedUserId);
+  }, [data, selectedUserId]);
 
   const handleStatusChange = async (recordId, newStatus) => {
     setIsUpdating(true);
@@ -123,6 +143,28 @@ export default function PaymentOperations() {
     <Grid container spacing={3}>
       <Grid size={12}>
         <PageHeader title="Payment Operations" description="Approve and manage tenant payments" icon={AuditOutlined} />
+      </Grid>
+
+      <Grid size={12}>
+        <MainCard>
+          <Stack spacing={2}>
+            <Typography variant="subtitle1" fontWeight={700}>
+              Search by User
+            </Typography>
+            <Autocomplete
+              options={userOptions}
+              loading={isUsersLoading}
+              value={userOptions.find((option) => option.id === selectedUserId) || null}
+              onChange={(_, option) => setSelectedUserId(option?.id || '')}
+              renderInput={(params) => <TextField {...params} label="Tenant / User ID" placeholder="Select a user" />}
+            />
+            <Typography variant="body2" color="text.secondary">
+              {selectedUserId
+                ? 'Showing payment operations for the selected user.'
+                : 'Showing payment operations for all users. Select a user to narrow the table.'}
+            </Typography>
+          </Stack>
+        </MainCard>
       </Grid>
 
       <Grid size={12}>

@@ -39,6 +39,23 @@ function extractList(data) {
   return [];
 }
 
+function normalizeEligibilityRecord(item) {
+  if (!item) return item;
+
+  return {
+    ...item,
+    id: item.id || item.tenantId || item?.tenant?.id || item?.userId || null,
+    tenantId: item.tenantId || item?.tenant?.id || item?.userId || null,
+    creditScore: Number(item.creditScore ?? item.score ?? item.finalScore ?? item.riskScore ?? item.totalScore ?? 0),
+    riskBand: item.riskBand || item.band || item.lastCalculatedBand || item.lastBand || null,
+    riskCategory: item.riskCategory || item.risk_category || item.category || null,
+    probabilityOfDefault: Number(item.probabilityOfDefault ?? item.probability ?? item.pd ?? 0),
+    successRate: Number(item.successRate ?? item.success_ratio ?? item.approvalRate ?? 0),
+    modelVersion: item.modelVersion || item.model || item.version || null,
+    calculatedAt: item.calculatedAt || item.updatedAt || item.createdAt || item.timestamp || null
+  };
+}
+
 function getTenantId(item) {
   return item?.tenantId || item?.tenant?.id || item?.userId || null;
 }
@@ -99,7 +116,7 @@ export default function Eligibility() {
   const { data: usersData } = useUsers({ size: 200 });
   const { generateScore } = useScoringActions();
 
-  const list = useMemo(() => extractList(data), [data]);
+  const list = useMemo(() => extractList(data).map(normalizeEligibilityRecord), [data]);
   const users = useMemo(() => extractList(usersData).filter(isTenantUser), [usersData]);
   const tenantOptions = useMemo(
     () =>
@@ -113,7 +130,7 @@ export default function Eligibility() {
   const selectedTenantRows = useMemo(() => {
     if (!tenantId.trim()) return list;
     if (!singleTenantEligibility) return [];
-    return [singleTenantEligibility];
+    return [normalizeEligibilityRecord(singleTenantEligibility)];
   }, [tenantId, list, singleTenantEligibility]);
   const scoreByTenant = useMemo(() => {
     return scoreRows.reduce((acc, row) => {
