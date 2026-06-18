@@ -5,15 +5,32 @@ import path from 'path';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
-  const API_URL = env.VITE_APP_BASE_NAME || '/';
+  const baseName = env.VITE_APP_BASE_NAME || '/';
+  const normalizedBaseName = baseName === '/' ? '' : baseName.replace(/\/$/, '');
+  const backendTarget = 'http://102.37.122.30';
   const PORT = 3000;
 
   return {
-    base: API_URL,
+    base: baseName,
     server: {
       open: true,
       port: PORT,
-      host: true
+      host: true,
+      proxy: {
+        '/api': {
+          target: backendTarget,
+          changeOrigin: true
+        },
+        ...(normalizedBaseName
+          ? {
+              [`${normalizedBaseName}/api`]: {
+                target: backendTarget,
+                changeOrigin: true,
+                rewrite: (requestPath) => requestPath.replace(normalizedBaseName, '')
+              }
+            }
+          : {})
+      }
     },
     preview: {
       open: true,

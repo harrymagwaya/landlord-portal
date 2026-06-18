@@ -37,6 +37,23 @@ function extractList(data) {
   return [];
 }
 
+function getRiskColor(value) {
+  if (value === 'PLATINUM' || value === 'LOW_RISK') return 'green';
+  if (value === 'GOLD' || value === 'MEDIUM_RISK') return 'gold';
+  if (value === 'SILVER') return 'blue';
+  if (value === 'BRONZE') return 'orange';
+  return 'red';
+}
+
+function formatPercent(value) {
+  if (!Number.isFinite(Number(value))) return '-';
+  return `${Math.round(Number(value) * 100)}%`;
+}
+
+function formatDate(value) {
+  return value ? new Date(value).toLocaleString() : '-';
+}
+
 // ==============================|| PAGE ||============================== //
 
 export default function EligibilityAssessments() {
@@ -68,26 +85,23 @@ export default function EligibilityAssessments() {
 
     {
       title: 'Risk Band',
-      dataIndex: 'lastCalculatedBand',
+      dataIndex: 'riskBand',
       key: 'band',
-
-      render: (band) => {
-        const color =
-          band === 'PLATINUM' ? 'green' : band === 'GOLD' ? 'gold' : band === 'SILVER' ? 'blue' : band === 'BRONZE' ? 'orange' : 'red';
-
-        return <Tag color={color}>{band}</Tag>;
-      }
+      render: (band) => <Tag color={getRiskColor(band)}>{band || 'UNKNOWN'}</Tag>
     },
 
     {
-      title: 'Borrowing Strength',
-      key: 'strength',
+      title: 'Risk Category',
+      dataIndex: 'riskCategory',
+      key: 'riskCategory',
+      render: (category) => <Tag color={getRiskColor(category)}>{category || 'UNKNOWN'}</Tag>
+    },
 
+    {
+      title: 'Probability of Default',
+      key: 'probabilityOfDefault',
       render: (_, row) => {
-        const max = Number(row.currentMaxLimit || 0);
-
-        const value = max >= 500 ? 90 : max >= 300 ? 70 : max >= 100 ? 45 : 20;
-
+        const value = Math.round(Number(row.probabilityOfDefault || 0) * 100);
         return (
           <Stack spacing={1}>
             <Typography variant="caption">{value}%</Typography>
@@ -107,25 +121,24 @@ export default function EligibilityAssessments() {
     },
 
     {
-      title: 'Limit Range',
-      key: 'limits',
-
-      render: (_, row) => (
-        <Stack spacing={0.5}>
-          <Typography fontWeight={700}>Max: {row.currentMaxLimit}</Typography>
-
-          <Typography variant="caption" color="text.secondary">
-            Min: {row.currentMinLimit}
-          </Typography>
-        </Stack>
-      )
+      title: 'Success Rate',
+      dataIndex: 'successRate',
+      key: 'successRate',
+      render: (value) => formatPercent(value)
     },
 
     {
-      title: 'Status',
-      key: 'status',
+      title: 'Calculated At',
+      dataIndex: 'calculatedAt',
+      key: 'calculatedAt',
+      render: (value) => formatDate(value)
+    },
 
-      render: (_, row) => (row.calculationAllowed ? <Chip label="APPROVED" color="success" /> : <Chip label="BLOCKED" color="error" />)
+    {
+      title: 'Model Version',
+      dataIndex: 'modelVersion',
+      key: 'modelVersion',
+      render: (value) => <Chip label={value || '-'} size="small" />
     },
 
     {
@@ -171,32 +184,54 @@ export default function EligibilityAssessments() {
               <Box>
                 <Typography variant="caption">Risk Band</Typography>
 
-                <Typography fontWeight={700}>{selected.lastCalculatedBand}</Typography>
+                <Typography fontWeight={700}>{selected.riskBand || '-'}</Typography>
               </Box>
 
               <Box>
-                <Typography variant="caption">Borrowing Limits</Typography>
+                <Typography variant="caption">Risk Category</Typography>
 
-                <Typography fontWeight={700}>
-                  {selected.currentMinLimit} - {selected.currentMaxLimit}
-                </Typography>
+                <Typography fontWeight={700}>{selected.riskCategory || '-'}</Typography>
               </Box>
 
               <Box>
-                <Typography variant="caption">Last Reviewed</Typography>
+                <Typography variant="caption">Credit Score</Typography>
 
-                <Typography fontWeight={700}>{new Date(selected.lastReviewedAt).toLocaleString()}</Typography>
+                <Typography fontWeight={700}>{selected.creditScore ?? '-'}</Typography>
+              </Box>
+
+              <Box>
+                <Typography variant="caption">Probability of Default</Typography>
+
+                <Typography fontWeight={700}>{formatPercent(selected.probabilityOfDefault)}</Typography>
+              </Box>
+
+              <Box>
+                <Typography variant="caption">Success Rate</Typography>
+
+                <Typography fontWeight={700}>{formatPercent(selected.successRate)}</Typography>
+              </Box>
+
+              <Box>
+                <Typography variant="caption">Calculated At</Typography>
+
+                <Typography fontWeight={700}>{formatDate(selected.calculatedAt)}</Typography>
+              </Box>
+
+              <Box>
+                <Typography variant="caption">Model Version</Typography>
+
+                <Typography fontWeight={700}>{selected.modelVersion || '-'}</Typography>
               </Box>
 
               <Box>
                 <Typography variant="caption">AI Recommendation</Typography>
 
                 <Typography>
-                  {selected.lastCalculatedBand === 'PLATINUM'
+                  {selected.riskBand === 'PLATINUM'
                     ? 'Pre-approve premium loan offers.'
-                    : selected.lastCalculatedBand === 'GOLD'
+                    : selected.riskBand === 'GOLD'
                       ? 'Eligible for standard borrowing.'
-                      : selected.lastCalculatedBand === 'BRONZE'
+                      : selected.riskBand === 'BRONZE'
                         ? 'Recommend monitored lending.'
                         : 'Application risk is high.'}
                 </Typography>

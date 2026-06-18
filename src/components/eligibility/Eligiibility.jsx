@@ -27,6 +27,7 @@ import { useUsers } from 'hooks/useUsers';
 
 // icons
 import CheckCircleOutlined from '@ant-design/icons/CheckCircleOutlined';
+import InfoCircleOutlined from '@ant-design/icons/InfoCircleOutlined';
 
 // ==============================|| HELPERS ||============================== //
 
@@ -51,6 +52,33 @@ function isTenantUser(user) {
   return (user?.userRole || user?.role || user?.userType) === 'TENANT';
 }
 
+function formatPercent(value) {
+  if (!Number.isFinite(Number(value))) return '-';
+  return `${Math.round(Number(value) * 100)}%`;
+}
+
+function formatDate(value) {
+  return value ? new Date(value).toLocaleString() : '-';
+}
+
+function getRiskColor(value) {
+  if (value === 'PLATINUM' || value === 'LOW_RISK') return 'green';
+  if (value === 'GOLD' || value === 'MEDIUM_RISK') return 'gold';
+  if (value === 'SILVER') return 'blue';
+  if (value === 'BRONZE') return 'orange';
+  return 'red';
+}
+
+// Detect if a tenant has no real behavioral history yet
+// Backend returns score=0, PD=1, successRate=0 as defaults for empty profiles
+function isFreshProfile(item) {
+  const score = Number(item?.creditScore);
+  const pd = Number(item?.probabilityOfDefault);
+  const sr = Number(item?.successRate);
+  // If score is 0 AND PD is 1 (or very close) AND successRate is 0, it's a default/empty state
+  return score === 0 && pd >= 0.99 && sr === 0;
+}
+
 // ==============================|| PAGE ||============================== //
 
 export default function Eligibility() {
@@ -58,10 +86,14 @@ export default function Eligibility() {
   const [checking, setChecking] = useState(false);
   const [actionError, setActionError] = useState('');
   const useEligibilityListHook = EligibilityHooks.useEligibilityList;
-  const { data, error, isLoading, mutate } = useEligibilityListHook ? useEligibilityListHook() : { data: [], error: null, isLoading: false };
-  const { data: singleTenantEligibility, isLoading: isTenantEligibilityLoading, mutate: mutateSingleTenant } = EligibilityHooks.useEligibility(
-    tenantId.trim() || null
-  );
+  const { data, error, isLoading, mutate } = useEligibilityListHook
+    ? useEligibilityListHook()
+    : { data: [], error: null, isLoading: false };
+  const {
+    data: singleTenantEligibility,
+    isLoading: isTenantEligibilityLoading,
+    mutate: mutateSingleTenant
+  } = EligibilityHooks.useEligibility(tenantId.trim() || null);
   const { assessEligibility } = EligibilityHooks.useEligibilityActions();
   const { data: scoresData, mutate: mutateScores } = useAllScores();
   const { data: usersData } = useUsers({ size: 200 });
@@ -123,15 +155,12 @@ export default function Eligibility() {
       title: 'Score',
       dataIndex: 'creditScore',
       key: 'creditScore',
-      width: 100
-    },
-    {
-      title: 'Latest Score',
-      key: 'latestScore',
       width: 120,
-      render: (_, row) => {
-        const entry = scoreByTenant[getTenantId(row)];
-        return entry?.score ?? '-';
+      render: (value, row) => {
+        if (isFreshProfile(row)) {
+          return <Chip size="small" label="Building..." sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontWeight: 600 }} />;
+        }
+        return <Typography fontWeight={700}>{value}</Typography>;
       }
     },
     {
@@ -139,46 +168,90 @@ export default function Eligibility() {
       dataIndex: 'riskBand',
       key: 'riskBand',
       width: 120,
-      render: (band) => {
-        const color =
-          band === 'PLATINUM' ? 'green' : band === 'GOLD' ? 'gold' : band === 'SILVER' ? 'blue' : band === 'BRONZE' ? 'orange' : 'red';
-
-        return <Tag color={color}>{band}</Tag>;
+      render: (band, row) => {
+        if (isFreshProfile(row)) {
+          return <Chip size="small" label="Pending" sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontWeight: 600 }} />;
+        }
+        return <Tag color={getRiskColor(band)}>{band || 'UNKNOWN'}</Tag>;
       }
     },
     {
-      title: 'Max Limit',
-      dataIndex: 'currentMaxLimit',
-      key: 'currentMaxLimit',
+      title: 'Risk Category',
+      dataIndex: 'riskCategory',
+      key: 'riskCategory',
       width: 120,
-      render: (v) => <b>{v}</b>
-    },
-    {
-      title: 'Allowed',
-      dataIndex: 'calculationAllowed',
-      key: 'calculationAllowed',
-      width: 100,
-      render: (v) => (v ? <Chip label="Allowed" color="success" size="small" /> : <Chip label="Blocked" color="error" size="small" />)
-    },
-    {
-      title: 'Scored At',
-      key: 'scoredAt',
-      width: 170,
-      render: (_, row) => {
-        const entry = scoreByTenant[getTenantId(row)];
-        return entry?.at ? new Date(entry.at).toLocaleDateString() : '-';
+      render: (category, row) => {
+        if (isFreshProfile(row)) {
+          return <Chip size="small" label="Pending" sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontWeight: 600 }} />;
+        }
+        return <Tag color={getRiskColor(category)}>{category || 'UNKNOWN'}</Tag>;
       }
+    },
+    {
+      title: 'Probability of Default',
+      dataIndex: 'probabilityOfDefault',
+      key: 'probabilityOfDefault',
+      width: 180,
+      render: (value, row) => {
+        if (isFreshProfile(row)) {
+          return (
+            <Typography fontSize="0.875rem" color="text.secondary">
+              Insufficient data
+            </Typography>
+          );
+        }
+        return (
+          <Typography fontWeight={700} color={value > 0.5 ? '#ef4444' : '#16a34a'}>
+            {formatPercent(value)}
+          </Typography>
+        );
+      }
+    },
+    {
+      title: 'Success Rate',
+      dataIndex: 'successRate',
+      key: 'successRate',
+      width: 130,
+      render: (value, row) => {
+        if (isFreshProfile(row)) {
+          return (
+            <Typography fontSize="0.875rem" color="text.secondary">
+              Insufficient data
+            </Typography>
+          );
+        }
+        return (
+          <Typography fontWeight={700} color={value > 0.5 ? '#16a34a' : '#ef4444'}>
+            {formatPercent(value)}
+          </Typography>
+        );
+      }
+    },
+    {
+      title: 'Model Version',
+      dataIndex: 'modelVersion',
+      key: 'modelVersion',
+      width: 140,
+      render: (value) => value || '-'
+    },
+    {
+      title: 'Calculated At',
+      dataIndex: 'calculatedAt',
+      key: 'calculatedAt',
+      width: 190,
+      render: (value) => formatDate(value)
     },
     {
       title: 'Actions',
       key: 'actions',
-      width: 160,
+      width: 180,
       render: (_, row) => {
         const tid = getTenantId(row);
+        const isFresh = isFreshProfile(row);
         return (
           <Button
             size="small"
-            variant="outlined"
+            variant={isFresh ? 'contained' : 'outlined'}
             disabled={!tid || checking}
             onClick={async () => {
               try {
@@ -194,12 +267,14 @@ export default function Eligibility() {
               }
             }}
           >
-            Refresh
+            {isFresh ? 'Generate First Score' : 'Refresh'}
           </Button>
         );
       }
     }
   ];
+
+  const selectedIsFresh = selectedTenantRows.length === 1 && isFreshProfile(selectedTenantRows[0]);
 
   return (
     <Grid container rowSpacing={3}>
@@ -233,6 +308,22 @@ export default function Eligibility() {
           ) : null}
         </MainCard>
       </Grid>
+
+      {/* INFO BANNER for new tenants */}
+      {selectedIsFresh && (
+        <Grid size={12}>
+          <Alert severity="info" icon={<InfoCircleOutlined />} sx={{ borderRadius: 2, alignItems: 'center' }}>
+            <Typography fontWeight={700} gutterBottom>
+              New Behavioral Profile
+            </Typography>
+            <Typography fontSize="0.875rem">
+              This tenant has no recorded payment history yet. The scoring engine requires at least{' '}
+              <strong>30 days of rent and transaction data</strong> to produce a meaningful score. Values shown are system defaults, not
+              predictions.
+            </Typography>
+          </Alert>
+        </Grid>
+      )}
 
       {/* ERROR */}
       {error && (
