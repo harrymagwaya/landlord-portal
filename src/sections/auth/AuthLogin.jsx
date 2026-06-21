@@ -34,7 +34,6 @@ import ApartmentOutlined from '@ant-design/icons/ApartmentOutlined';
 import AuditOutlined from '@ant-design/icons/AuditOutlined';
 import EyeOutlined from '@ant-design/icons/EyeOutlined';
 import EyeInvisibleOutlined from '@ant-design/icons/EyeInvisibleOutlined';
-import MobileOutlined from '@ant-design/icons/MobileOutlined';
 
 const APP_TYPES = {
   ADMIN: 'XPRO_ADMIN_PORTAL',
@@ -57,13 +56,6 @@ const portalOptions = [
     title: 'Loan Admin',
     subtitle: 'Eligibility, risk review, and loan workflows',
     icon: AuditOutlined
-  },
-  {
-    role: USER_ROLES.TENANT,
-    appType: APP_TYPES.TENANT,
-    title: 'Tenant',
-    subtitle: 'Payments, rental profile, score, and unit details',
-    icon: MobileOutlined
   }
 ];
 
